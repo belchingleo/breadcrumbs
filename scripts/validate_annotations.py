@@ -120,10 +120,32 @@ def validate(analysis: dict, ann: dict,
 
         sig = t.get("thread_signature")
         if sig and sig != src.get("thread_signature"):
-            errs.append(
-                f"{tag} 内容签名不符——这条线的轮次构成已经变了。\n"
-                f"    分析起于：「{src.get('anchor_quote','')}」\n"
-                f"    标注认为：「{t.get('name') or t.get('anchor_quote') or '(无名)'}」")
+            # 签名不符有两种情况, 后果完全不同, 不该一律判死:
+            #   ① 起点也变了 -> 这条标注对的是另一条线, 必须拒绝;
+            #   ② 起点没变, 只是轮次构成变了（算法调参、重划边界）
+            #      -> 标注的语义判断多半仍成立, 只是覆盖范围变了。
+            # content_signature 只由首轮原文决定、与轮次无关, 正是用来区分
+            # 这两种情况的。以前一律硬失败, 导致每次算法微调都要整批重标——
+            # 实测重跑一份报告时只能手写脚本按 anchor_quote 重新对齐。
+            same_origin = (
+                t.get("content_signature")
+                and t["content_signature"] == src.get("content_signature")
+            ) or (
+                t.get("anchor_quote") and src.get("anchor_quote")
+                and t["anchor_quote"][:20] == src["anchor_quote"][:20]
+            )
+            if same_origin:
+                warn.append(
+                    f"{tag} 起点未变，但轮次构成变了"
+                    f"（{src.get('turn_count','?')} 轮）。"
+                    f"标注可能仍适用，请复核覆盖范围是否还对：\n"
+                    f"      「{src.get('anchor_quote','')}」")
+                t["thread_signature"] = src.get("thread_signature")
+            else:
+                errs.append(
+                    f"{tag} 内容签名不符，且起点也不同——这条标注对的是另一条线。\n"
+                    f"    分析起于：「{src.get('anchor_quote','')}」\n"
+                    f"    标注认为：「{t.get('name') or t.get('anchor_quote') or '(无名)'}」")
         elif not sig:
             errs.append(f"{tag} 缺少 thread_signature（应为 "
                         f"{src.get('thread_signature')}）")

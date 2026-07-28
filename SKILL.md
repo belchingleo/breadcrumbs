@@ -213,6 +213,16 @@ python3 ~/.claude/skills/breadcrumbs/scripts/report.py \
   -o ./breadcrumbs-<会话简称>.html
 ```
 
+重新分析导致线路重划时，不要从头重标。先救回可复用的语义判断：
+
+```bash
+python3 ~/.claude/skills/breadcrumbs/scripts/realign.py \
+  新的analysis.json 旧的annotations.json -o 新的annotations.json
+```
+
+按起点内容而非顺序编号配对；轮次构成变过的会自动写入待复核提示，
+配不上的会明确列出，不静默丢弃。
+
 标注身份、数量或起点不匹配时必须拒绝渲染。`--force` 只用于排错；强行生成的
 页面会显示红色风险说明，不能作为正式复盘交付。
 

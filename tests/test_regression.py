@@ -33,6 +33,7 @@ from render import build_page, discussion_path, report_identity  # noqa: E402
 from report import attach_annotations                   # noqa: E402
 from analyze import build_analysis                 # noqa: E402
 from install import install_to                     # noqa: E402
+from realign import realign                        # noqa: E402
 
 FAILURES: list[str] = []
 
@@ -103,16 +104,35 @@ def t_thread_count_mismatch() -> None:
 
 
 def t_signature_change() -> None:
-    """P0-1: 线路轮次构成变了, 旧标注必须失配。"""
+    """签名失配要分两种情况处理, 不能一律判死。
+
+    起点也变了 = 这条标注对的是另一条线 -> 硬拒绝。
+    起点没变、只是轮次构成变了 = 算法重划边界 -> 语义判断多半仍成立,
+    降级为待复核警告, 否则每次调参都要整批重标。
+    """
+    # ① 起点也变了: 必须拒绝
     a = fake_analysis(4)
     ann = good_annotations(a)
-    # 模拟重新分析后线3 的轮次构成变了
     a["threads"][3]["thread_signature"] = identity.thread_signature(
         [99, 100, 101], "完全不同的起始文本")
+    a["threads"][3]["anchor_quote"] = "完全不同的起始文本"
+    a["threads"][3]["content_signature"] = identity.content_signature(
+        "完全不同的起始文本")
     errs = validate(a, ann)
-    check("签名变化 被拒绝", bool(errs))
-    check("失配信息含双方摘要",
-          any("分析起于" in e or "签名不符" in e for e in errs), str(errs[:1]))
+    check("起点也变 被拒绝", bool(errs))
+    check("拒绝信息含双方摘要",
+          any("分析起于" in e or "另一条线" in e for e in errs), str(errs[:1]))
+
+    # ② 只有轮次构成变了: 放行但警告
+    b = fake_analysis(4)
+    ann_b = good_annotations(b)
+    b["threads"][2]["thread_signature"] = identity.thread_signature(
+        [50, 51, 52], b["threads"][2]["anchor_quote"])
+    warns: list[str] = []
+    errs_b = validate(b, ann_b, warns)
+    check("起点未变 不拒绝", not errs_b, str(errs_b[:2]))
+    check("起点未变 给出待复核警告",
+          any("轮次构成变了" in w for w in warns), str(warns[:2]))
 
 
 def t_analysis_id_mismatch() -> None:
@@ -173,6 +193,51 @@ def t_evidence_turn_must_belong_to_thread() -> None:
     errs = validate(a, ann)
     check("跨线 evidence_turn 被拒绝",
           any("evidence_turn" in error for error in errs), str(errs[:2]))
+
+
+def t_sim_matrix_is_opt_in() -> None:
+    """n×n 矩阵无消费者, 默认不该落盘（83 轮就要 21K）。"""
+    import inspect
+    from analyze import build_analysis as ba
+    params = inspect.signature(ba).parameters
+    check("build_analysis 有 keep_sim_matrix 开关", "keep_sim_matrix" in params)
+    check("默认关闭", params["keep_sim_matrix"].default is False)
+
+
+def t_realign_rescues_annotations() -> None:
+    """线重划后, 起点未变的标注必须能救回, 且留下待复核痕迹。"""
+    a = fake_analysis(3)
+    for t in a["threads"]:
+        t["content_signature"] = identity.content_signature(t["anchor_quote"])
+    old = good_annotations(a)
+
+    # 模拟重新分析: 线1 轮次构成变了, 起点不变
+    a2 = json.loads(json.dumps(a))
+    a2["analysis_id"] = "sha256:newanalysis0001"
+    a2["threads"][1]["thread_signature"] = identity.thread_signature(
+        [4, 5, 6, 7], a2["threads"][1]["anchor_quote"])
+    a2["threads"][1]["turn_count"] = 4
+
+    new, notes = realign(a2, old)
+    check("全部救回", len(new["threads"]) == 3, f"实际 {len(new['threads'])}")
+    check("analysis_id 换成新的",
+          new["analysis_id"] == "sha256:newanalysis0001")
+    check("语义判断被沿用",
+          new["threads"][1].get("name") == old["threads"][1]["name"])
+    check("轮次变动留下待复核痕迹",
+          "待复核" in (new["threads"][1].get("agent_note") or ""),
+          str(new["threads"][1].get("agent_note")))
+    check("对齐后可通过校验", not validate(a2, new), str(validate(a2, new)[:2]))
+
+    # 起点也变了的, 不许被救
+    a3 = json.loads(json.dumps(a))
+    a3["threads"][2]["anchor_quote"] = "一段毫不相干的全新起始提问内容"
+    a3["threads"][2]["content_signature"] = identity.content_signature(
+        a3["threads"][2]["anchor_quote"])
+    new3, _ = realign(a3, old)
+    check("起点也变的线不被误配",
+          all(t["id"] != 2 for t in new3["threads"]),
+          str([t["id"] for t in new3["threads"]]))
 
 
 def t_script_injection() -> None:
@@ -568,6 +633,8 @@ TEST_GROUPS = [
                           t_report_title_falls_back_to_confirmed_trunk,
                           t_false_merge_not_painted_as_confirmed_path]),
         ("可恢复安装与更新", [t_install_keeps_recoverable_backup]),
+        ("产物体积与标注复用", [t_sim_matrix_is_opt_in,
+                            t_realign_rescues_annotations]),
         ("Codex 输入适配", [t_codex_thread_normalization,
                             t_codex_retry_stream_alignment]),
 ]

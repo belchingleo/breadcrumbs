@@ -41,6 +41,7 @@ def build_analysis(
     corpus_limit: int = 200,
     *,
     source: str = "claude",
+    keep_sim_matrix: bool = False,
 ) -> dict:
     conversation = (
         session if isinstance(session, Conversation)
@@ -189,13 +190,15 @@ def build_analysis(
             "threads": {str(k): v for k, v in res["threads"].items()},
             "thread_id": res["thread_id"],
             "steps": res["steps"],
-            "sim_matrix": res["sim_matrix"],
             "texts_head": res["texts_head"],
             "texts_full": res["texts_full"],
             "timestamps": res["timestamps"],
             "prompt_anchors": anchors,
             "sim_adj": res["sim_adj"],
             "sim_to_first": res["sim_to_first"],
+            # n×n 相似度矩阵只在诊断时才落盘。它是链接算法的中间量, 渲染层
+            # 自热力图移除后已无消费者; 83 轮会话就要 21K, 长会话更夸张。
+            **({"sim_matrix": res["sim_matrix"]} if keep_sim_matrix else {}),
         },
     }
 
@@ -215,6 +218,8 @@ def main() -> int:
     ap.add_argument("--corpus-limit", type=int, default=200,
                     help="最多用多少个同来源会话拟合结构语料（默认 200）")
     ap.add_argument("-o", "--out", default="analysis.json")
+    ap.add_argument("--debug", action="store_true",
+                    help="额外写入 n×n 相似度矩阵等诊断数据（体积明显变大）")
     ap.add_argument("--agent-view", action="store_true",
                     help="额外写一份不含渲染数据的精简版, 供 agent 读")
     args = ap.parse_args()
@@ -229,7 +234,8 @@ def main() -> int:
 
     try:
         analysis = build_analysis(
-            conversation, corpus_limit=max(1, args.corpus_limit)
+            conversation, corpus_limit=max(1, args.corpus_limit),
+            keep_sim_matrix=args.debug,
         )
     except ConversationSourceError as exc:
         print(str(exc), file=sys.stderr)

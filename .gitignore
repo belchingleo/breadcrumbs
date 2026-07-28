@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+# 运行产物（含真实会话原文，不入库）
+analysis*.json
+annotations.json
+*.html
+
+# 内部评审文档：含未发表的研究内容，不进公开库
+Breadcrumbs产品与Skill审查优化建议.md
+优化建议2.md
+.hallmark/

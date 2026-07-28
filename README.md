@@ -28,7 +28,7 @@
 ## 安装
 
 ```bash
-git clone https://github.com/<your-account>/breadcrumbs.git
+git clone https://github.com/belchingleo/breadcrumbs.git
 cd breadcrumbs
 python3 scripts/install.py --target claude   # 或 --target codex / --target both
 ```

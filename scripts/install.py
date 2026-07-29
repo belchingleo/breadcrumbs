@@ -1,12 +1,12 @@
-"""安装或更新 Breadcrumbs skill，并保留上一版作为可恢复备份。
+"""安装或更新 Crumbs 与 Bread，并把旧版本移出 skill 扫描目录。
 
 用法：
     python3 scripts/install.py --target claude
     python3 scripts/install.py --target codex
     python3 scripts/install.py --target both
 
-只分发运行所需的 SKILL.md、scripts/ 与 assets/。测试、QA 报告和产品文档
-不会进入用户的 skill 目录。
+安装后 Claude Code 使用 /crumbs 与 /bread；Codex 显式入口为
+$crumbs 与 $bread。两个 skill 各自完整，避免运行时依赖仓库位置。
 """
 from __future__ import annotations
 
@@ -18,59 +18,82 @@ import tempfile
 
 
 SOURCE_ROOT = Path(__file__).resolve().parent.parent
-PACKAGE_ENTRIES = ("SKILL.md", "scripts", "assets")
+SKILL_NAMES = ("crumbs", "bread")
+SHARED_ENTRIES = ("scripts", "references", "assets")
+LEGACY_NAME = "breadcrumbs"
+HOST_AGENT_FILES = {
+    "claude": ("claude/crumbs-evaluator.md", "crumbs-evaluator.md"),
+    "codex": ("codex/crumbs-evaluator.toml", "crumbs-evaluator.toml"),
+}
 
 
 def workspace_for(skills_root: Path) -> Path:
-    """备份与暂存的存放处——必须在 skills 目录**之外**。
-
-    实测教训: 原先把 `breadcrumbs.backup-<时间戳>` 直接放在
-    `~/.claude/skills/` 里。那是 skill 的加载目录, 于是备份被当成一个
-    活的 skill 加载了——而且它的 frontmatter 里 `name: breadcrumbs`
-    与正式版同名, 两个同名 skill 争抢触发, 用户敲 /crumbs 可能命中旧版。
-    「可回滚」这个安全措施本身制造了一个更隐蔽的故障。
-
-    放到 skills 的父目录（~/.claude/ 或 ~/.codex/）下: 仍在工具自己的
-    配置目录内, 与目标同一文件系统（保证 rename 原子）, 但不会被扫描成 skill。
-    """
+    """备份与暂存必须在 skills 目录之外，避免被当成活 skill。"""
     return skills_root.parent / "breadcrumbs-backups"
 
 
-def install_to(skills_root: Path) -> tuple[Path, Path | None]:
+def _copy_skill(name: str, destination: Path) -> None:
+    source_skill = SOURCE_ROOT / "skills" / name / "SKILL.md"
+    shutil.copy2(source_skill, destination / "SKILL.md")
+    for entry in SHARED_ENTRIES:
+        source = SOURCE_ROOT / entry
+        target = destination / entry
+        if source.is_dir():
+            shutil.copytree(
+                source, target,
+                ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
+            )
+
+
+def install_to(
+    skills_root: Path,
+) -> tuple[dict[str, Path], dict[str, Path]]:
+    """原子替换两个入口；返回安装位置与实际产生的备份。"""
     skills_root.mkdir(parents=True, exist_ok=True)
-    destination = skills_root / "breadcrumbs"
     workspace = workspace_for(skills_root)
     workspace.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    staging = Path(tempfile.mkdtemp(prefix="staging-", dir=str(workspace)))
+    backups: dict[str, Path] = {}
+    installed: dict[str, Path] = {}
+    moved: list[tuple[Path, Path]] = []
+    placed: list[Path] = []
 
-    # 暂存也移出 skills 目录: 进程被硬杀时残留的半成品同样不该被当 skill 扫到。
-    staging = Path(tempfile.mkdtemp(
-        prefix="staging-", dir=str(workspace)
-    ))
-    backup = None
     try:
-        for name in PACKAGE_ENTRIES:
-            source = SOURCE_ROOT / name
-            target = staging / name
-            if source.is_dir():
-                shutil.copytree(
-                    source, target,
-                    ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
-                )
-            else:
-                shutil.copy2(source, target)
+        for name in SKILL_NAMES:
+            staged_skill = staging / name
+            staged_skill.mkdir()
+            _copy_skill(name, staged_skill)
 
-        if destination.exists():
-            stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-            backup = workspace / stamp
-            destination.rename(backup)
-        staging.rename(destination)
+        # 旧的单入口 breadcrumbs 不是兼容层。更新时直接移出加载目录，
+        # 但保留可恢复备份，避免留下第三个会争抢触发的 skill。
+        existing_names = (*SKILL_NAMES, LEGACY_NAME)
+        for name in existing_names:
+            current = skills_root / name
+            if not current.exists():
+                continue
+            backup = workspace / f"{stamp}-{name}"
+            current.rename(backup)
+            backups[name] = backup
+            moved.append((current, backup))
+
+        for name in SKILL_NAMES:
+            destination = skills_root / name
+            (staging / name).rename(destination)
+            installed[name] = destination
+            placed.append(destination)
+        staging.rmdir()
     except Exception:
-        if backup is not None and backup.exists() and not destination.exists():
-            backup.rename(destination)
+        for destination in reversed(placed):
+            if destination.exists():
+                shutil.rmtree(destination)
+        for current, backup in reversed(moved):
+            if backup.exists() and not current.exists():
+                backup.rename(current)
         if staging.exists():
             shutil.rmtree(staging)
         raise
-    return destination, backup
+    return installed, backups
 
 
 def roots_for(target: str) -> list[Path]:
@@ -80,6 +103,36 @@ def roots_for(target: str) -> list[Path]:
         "codex": home / ".codex" / "skills",
     }
     return list(roots.values()) if target == "both" else [roots[target]]
+
+
+def install_host_agent(
+    target: str,
+    skills_root: Path,
+) -> tuple[Path, Path | None]:
+    """安装使用当前宿主认证的 evaluator；旧版仍放到可恢复备份。"""
+    source_name, destination_name = HOST_AGENT_FILES[target]
+    source = SOURCE_ROOT / "host-agents" / source_name
+    agents_root = skills_root.parent / "agents"
+    agents_root.mkdir(parents=True, exist_ok=True)
+    destination = agents_root / destination_name
+    workspace = workspace_for(skills_root)
+    workspace.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    backup = None
+    temporary = agents_root / f".{destination_name}.{stamp}.tmp"
+    shutil.copy2(source, temporary)
+    try:
+        if destination.exists():
+            backup = workspace / f"{stamp}-agent-{destination_name}"
+            destination.rename(backup)
+        temporary.rename(destination)
+    except Exception:
+        if temporary.exists():
+            temporary.unlink()
+        if backup is not None and backup.exists() and not destination.exists():
+            backup.rename(destination)
+        raise
+    return destination, backup
 
 
 def main() -> int:
@@ -94,15 +147,26 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    for root in roots_for(args.target):
-        destination = root / "breadcrumbs"
+    targets = ("claude", "codex") if args.target == "both" else (args.target,)
+    for target in targets:
+        root = roots_for(target)[0]
         if args.dry_run:
-            print(f"将安装到: {destination}")
+            for name in SKILL_NAMES:
+                print(f"将安装到: {root / name}")
+            print(
+                "将安装 evaluator: "
+                f"{root.parent / 'agents' / HOST_AGENT_FILES[target][1]}"
+            )
             continue
-        installed, backup = install_to(root)
-        print(f"已安装: {installed}")
-        if backup:
-            print(f"上一版备份: {backup}")
+        installed, backups = install_to(root)
+        agent, agent_backup = install_host_agent(target, root)
+        for name in SKILL_NAMES:
+            print(f"已安装: {installed[name]}")
+        print(f"已安装 evaluator: {agent}")
+        for name, backup in backups.items():
+            print(f"{name} 上一版备份: {backup}")
+        if agent_backup is not None:
+            print(f"evaluator 上一版备份: {agent_backup}")
     return 0
 
 

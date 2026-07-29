@@ -4,6 +4,12 @@ __pycache__/
 # 运行产物（含真实会话原文，不入库）
 analysis*.json
 annotations.json
+crumbs*.json
+verdicts*.json
+verdicts*.txt
+interaction*.json
+decision*.json
+settlement*.json
 *.html
 # 唯一允许入库的 HTML：完全虚构、公开可分享的 GitHub Pages 演示
 !docs/index.html

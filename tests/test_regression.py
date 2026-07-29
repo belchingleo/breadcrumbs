@@ -32,7 +32,7 @@ from validate_annotations import validate          # noqa: E402
 from render import build_page, discussion_path, report_identity  # noqa: E402
 from report import attach_annotations                   # noqa: E402
 from analyze import build_analysis                 # noqa: E402
-from install import install_to                     # noqa: E402
+from install import install_host_agent, install_to  # noqa: E402
 from realign import realign                        # noqa: E402
 
 FAILURES: list[str] = []
@@ -619,34 +619,57 @@ def t_false_merge_not_painted_as_confirmed_path() -> None:
 
 
 def t_install_keeps_recoverable_backup() -> None:
-    """更新安装不原地覆盖，旧版必须能恢复。"""
+    """两个命令必须各自可调用；更新与旧单入口都能恢复。"""
     with tempfile.TemporaryDirectory() as d:
         root = Path(d) / "skills"
-        first, backup1 = install_to(root)
-        marker = first / "old-version-marker"
+        first, backups1 = install_to(root)
+        marker = first["crumbs"] / "old-version-marker"
         marker.write_text("old", encoding="utf-8")
-        second, backup2 = install_to(root)
-        check("首次安装没有伪造备份", backup1 is None)
-        check("更新后的目标仍完整", (second / "SKILL.md").exists())
-        check("上一版被保留", backup2 is not None and
-              (backup2 / "old-version-marker").read_text() == "old")
-        check("QA 文件不进入安装包", not (second / "qa").exists())
+        # 模拟旧版单入口；更新后应移出扫描目录，不提供兼容提示或第三个命令。
+        legacy = root / "breadcrumbs"
+        legacy.mkdir()
+        (legacy / "SKILL.md").write_text(
+            "---\nname: breadcrumbs\n---\n", encoding="utf-8",
+        )
+        second, backups2 = install_to(root)
+        check("首次安装没有伪造备份", backups1 == {})
+        check("两个入口都已安装",
+              set(second) == {"crumbs", "bread"} and
+              all((path / "SKILL.md").exists() for path in second.values()))
+        check("evaluator 契约进入安装包",
+              (second["crumbs"] / "references" /
+               "crumbs-evaluator.md").exists())
+        check("evaluator 输出规则进入安装包",
+              (second["crumbs"] / "references" /
+               "crumbs-verdict.schema.json").exists())
+        claude_agent, _ = install_host_agent("claude", root)
+        codex_agent, _ = install_host_agent("codex", root)
+        check("Claude 原生 evaluator 进入 agents 目录",
+              claude_agent.parent == root.parent / "agents" and
+              "model: haiku" in claude_agent.read_text(encoding="utf-8"))
+        check("Codex 原生 evaluator 进入 agents 目录",
+              codex_agent.parent == root.parent / "agents" and
+              'model = "gpt-5.6-luna"' in
+              codex_agent.read_text(encoding="utf-8"))
+        check("上一版被保留",
+              (backups2["crumbs"] / "old-version-marker").read_text() == "old")
+        check("旧单入口也被移出加载目录",
+              "breadcrumbs" in backups2 and not legacy.exists())
+        check("QA 文件不进入安装包",
+              all(not (path / "qa").exists() for path in second.values()))
 
         # 备份必须落在 skills 目录之外。
-        # 实测教训: 备份原先叫 ~/.claude/skills/breadcrumbs.backup-<戳>,
-        # 被 Claude Code 当成一个活的 skill 加载, 且其 frontmatter 里
-        # name 与正式版相同 —— 两个同名 skill 争抢触发。
-        # 原有断言只检查「备份存在」, 因此漏掉了这个 bug。
         check("备份不在 skills 目录内",
-              backup2 is not None and root not in backup2.parents,
-              f"备份落在 {backup2}")
+              all(root not in path.parents for path in backups2.values()),
+              f"备份落在 {backups2}")
         entries = sorted(p.name for p in root.iterdir())
-        check("skills 目录下只有 breadcrumbs 一项", entries == ["breadcrumbs"],
+        check("skills 目录下只有两个产品入口",
+              entries == ["bread", "crumbs"],
               f"实际 {entries}")
-        # 任何带 SKILL.md 的目录都会被当 skill 扫描, 这是判据本身
         loadable = [p.name for p in root.iterdir()
                     if (p / "SKILL.md").exists()]
-        check("skills 目录下只有一个可加载 skill", loadable == ["breadcrumbs"],
+        check("只有 crumbs 与 bread 可被加载",
+              sorted(loadable) == ["bread", "crumbs"],
               f"实际 {loadable}")
 
 

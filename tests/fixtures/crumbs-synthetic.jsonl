@@ -1,0 +1,8 @@
+{"type":"user","uuid":"synthetic-user-1","timestamp":"2026-01-01T00:00:00Z","message":{"role":"user","content":"为什么虚构的导出流程总是失败？"}}
+{"type":"assistant","uuid":"synthetic-assistant-1","timestamp":"2026-01-01T00:00:10Z","message":{"role":"assistant","content":"请你确认要导出 PDF 还是 HTML。"}}
+{"type":"user","uuid":"synthetic-user-2","timestamp":"2026-01-01T00:01:00Z","message":{"role":"user","content":"HTML。"}}
+{"type":"assistant","uuid":"synthetic-assistant-2","timestamp":"2026-01-01T00:01:10Z","message":{"role":"assistant","content":"我会重新检查导出流程。"}}
+{"type":"user","uuid":"synthetic-user-3","timestamp":"2026-01-01T00:02:00Z","message":{"role":"user","content":"另外请把按钮改成灰色，并检查标题是否正确。"}}
+{"type":"assistant","uuid":"synthetic-assistant-3","timestamp":"2026-01-01T00:02:10Z","message":{"role":"assistant","content":"按钮和标题已经修改完成。"}}
+{"type":"user","uuid":"synthetic-user-4","timestamp":"2026-01-01T00:03:00Z","message":{"role":"user","content":"继续解释最初的导出失败原因。"}}
+{"type":"assistant","uuid":"synthetic-assistant-4","timestamp":"2026-01-01T00:03:10Z","message":{"role":"assistant","content":"当前先记录这个问题。"}}

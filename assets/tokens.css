@@ -1,19 +1,38 @@
-/* Hallmark · macrostructure: Long Document · tone: editorial · anchor hue: 240 · theme: Almanac · enrichment: none · nav: N3 · footer: Ft2 · contrast: pass (40–41) · slop: pass (42–49) · mobile: pass (34, 49, 50–57) */
-/* Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V5 */
+/* Hallmark · genre: editorial · macrostructure: Long Document + Route Map · tone: editorial · anchor hue: 240 · theme: Almanac · enrichment: Tier-B SVG · nav: N3 · footer: Ft2 */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
 :root {
   --color-paper: oklch(97% 0.009 240);
   --color-paper-deep: oklch(94% 0.014 240);
+  --color-paper-lift: oklch(99% 0.004 240);
   --color-ink: oklch(20% 0.025 250);
   --color-muted: oklch(48% 0.025 245);
   --color-faint: oklch(65% 0.018 245);
   --color-rule: oklch(84% 0.018 240);
-  --color-accent: oklch(52% 0.145 236);
-  --color-accent-soft: oklch(92% 0.035 236);
+  --color-accent: oklch(48% 0.085 252);
+  --color-accent-strong: oklch(39% 0.105 252);
+  --color-accent-ink: oklch(98% 0.005 240);
+  --color-accent-soft: oklch(92% 0.022 248);
+  --color-structure: oklch(47% 0.018 245);
+  --color-structure-soft: oklch(94% 0.012 240);
+  --color-table-rule: oklch(84% 0.012 240);
   --color-warn: oklch(48% 0.11 65);
   --color-warn-soft: oklch(93% 0.035 75);
   --color-danger: oklch(48% 0.15 25);
   --color-danger-soft: oklch(93% 0.035 25);
   --color-overlay: oklch(20% 0.025 250 / 0.28);
+  --color-shadow: oklch(20% 0.025 250 / 0.1);
+  --color-scroll-thumb: color-mix(
+    in oklch,
+    var(--color-table-rule) 58%,
+    transparent
+  );
+  --color-scroll-thumb-hover: color-mix(
+    in oklch,
+    var(--color-table-rule) 72%,
+    transparent
+  );
+  --color-scroll-track: oklch(100% 0 0 / 0);
+  --color-breadcrumb-path: oklch(62% 0.012 245 / 0.3);
 
   --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
   --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -40,8 +59,9 @@
 
   --radius-sm: 0.25rem;
   --radius-md: 0.6rem;
+  --radius-lg: 1rem;
   --measure: 66ch;
-  --rail-width: 18rem;
+  --rail-width: 19rem;
   --z-base: 1;
   --z-sticky: 200;
   --z-modal: 400;
@@ -49,4 +69,56 @@
   --dur-micro: 120ms;
   --dur-short: 220ms;
   --dur-long: 420ms;
+
+  color-scheme: light dark;
+}
+
+/* 深色主题只重写颜色层, 版式与间距不动。复盘稿常在夜里读, 而且它是本地文件,
+   没有站点级主题开关可依赖, 所以以系统偏好为准, 同时留 data-theme 钩子。 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper: oklch(18% 0.018 250);
+    --color-paper-deep: oklch(14% 0.018 250);
+    --color-paper-lift: oklch(23% 0.020 250);
+    --color-ink: oklch(93% 0.012 245);
+    --color-muted: oklch(72% 0.020 245);
+    --color-faint: oklch(55% 0.018 245);
+    --color-rule: oklch(34% 0.018 245);
+    --color-accent: oklch(76% 0.095 252);
+    --color-accent-strong: oklch(86% 0.105 252);
+    --color-accent-ink: oklch(16% 0.020 250);
+    --color-accent-soft: oklch(30% 0.045 250);
+    --color-structure: oklch(70% 0.020 245);
+    --color-structure-soft: oklch(27% 0.015 245);
+    --color-table-rule: oklch(33% 0.014 245);
+    --color-warn: oklch(80% 0.110 70);
+    --color-warn-soft: oklch(30% 0.050 70);
+    --color-danger: oklch(74% 0.130 25);
+    --color-danger-soft: oklch(30% 0.060 25);
+    --color-overlay: oklch(8% 0.020 250 / 0.6);
+    --color-shadow: oklch(4% 0.020 250 / 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-paper: oklch(18% 0.018 250);
+  --color-paper-deep: oklch(14% 0.018 250);
+  --color-paper-lift: oklch(23% 0.020 250);
+  --color-ink: oklch(93% 0.012 245);
+  --color-muted: oklch(72% 0.020 245);
+  --color-faint: oklch(55% 0.018 245);
+  --color-rule: oklch(34% 0.018 245);
+  --color-accent: oklch(76% 0.095 252);
+  --color-accent-strong: oklch(86% 0.105 252);
+  --color-accent-ink: oklch(16% 0.020 250);
+  --color-accent-soft: oklch(30% 0.045 250);
+  --color-structure: oklch(70% 0.020 245);
+  --color-structure-soft: oklch(27% 0.015 245);
+  --color-table-rule: oklch(33% 0.014 245);
+  --color-warn: oklch(80% 0.110 70);
+  --color-warn-soft: oklch(30% 0.050 70);
+  --color-danger: oklch(74% 0.130 25);
+  --color-danger-soft: oklch(30% 0.060 25);
+  --color-overlay: oklch(8% 0.020 250 / 0.6);
+  --color-shadow: oklch(4% 0.020 250 / 0.5);
 }

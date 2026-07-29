@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import os
 import queue
+import re
 import shutil
 import subprocess
 import threading
@@ -206,13 +207,29 @@ def content_text(content: Any) -> str:
 
 
 def clean_user_text(text: str) -> str:
-    """去掉 Codex 桌面端生成的附件清单外壳，保留用户真正的请求。
+    """去掉 Codex 桌面端生成的环境外壳，保留用户真正的请求。
 
-    只处理带有固定 ``## My request for Codex:`` 标记且从附件标题开始的
-    内容，避免把用户自己写的 Markdown 标题误删。
+    桌面端会把浏览器状态、可选插件和运行环境作为 XML 块放在用户请求前。
+    这些内容不是用户的思路，却往往比真正请求长；若保留，会同时污染结构分析
+    和 agent 视图的 token 预算。这里只移除消息开头的已知 Codex 外壳。
     """
     stripped = text.strip()
+    shell = re.compile(
+        r"^\s*<(?:in-app-browser-context|recommended_plugins|environment_context)"
+        r"(?:\s[^>]*)?>.*?</(?:in-app-browser-context|recommended_plugins|"
+        r"environment_context)>\s*",
+        re.DOTALL,
+    )
+    while True:
+        cleaned = shell.sub("", stripped, count=1).strip()
+        if cleaned == stripped:
+            break
+        stripped = cleaned
     marker = "## My request for Codex:"
+    if stripped.startswith(marker):
+        request = stripped[len(marker):].strip()
+        if request:
+            return request
     if stripped.startswith("# Files mentioned by the user:") and marker in stripped:
         request = stripped.split(marker, 1)[1].strip()
         if request:

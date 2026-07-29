@@ -203,9 +203,89 @@ def build_analysis(
     }
 
 
+# agent view 里每条线保留的轮次上限。超过就折叠中段, 只留结构上有话说的轮次。
+# 这个数字要够 agent 判断「特别核查四类误判」, 又不至于把长主线整段灌进上下文。
+KEEP_TURNS = 8
+
+# 这三个键只有渲染器需要, 而渲染器读的是完整 analysis.json（带 _render）,
+# 不读 agent view。留在 agent view 里纯属让 agent 为看不懂的东西付钱。
+_TURN_KEYS_FOR_RENDER_ONLY = ("time", "chars", "truncated")
+
+
+def _slim_turn(turn: dict) -> dict:
+    """去掉 agent 用不上的键, 并省略空值——空值也要花 token。"""
+    out = {
+        k: v for k, v in turn.items()
+        if k not in _TURN_KEYS_FOR_RENDER_ONLY
+    }
+    for key in ("event", "links_to"):
+        if out.get(key) is None:
+            out.pop(key, None)
+    if not out.get("markers"):
+        out.pop("markers", None)
+    return out
+
+
+def _keep_turn_numbers(turns: list[dict]) -> set[int]:
+    """挑出中段折叠后仍要保留的轮次。
+
+    保留标准是「这一轮在结构和时间位置上有代表性」：线的首尾、带事件或话语
+    标记的轮次，再用均匀采样补齐中段。不能按文本长度挑选：平台自动注入的
+    环境外壳和粘贴材料往往最长，却不一定是这条思路最关键的证据。
+    """
+    keep = {turns[0]["turn"], turns[-1]["turn"]}
+
+    def spread(items: list[dict], slots: int) -> list[dict]:
+        if slots <= 0 or not items:
+            return []
+        if len(items) <= slots:
+            return items
+        if slots == 1:
+            return [items[len(items) // 2]]
+        indexes = {
+            round(i * (len(items) - 1) / (slots - 1))
+            for i in range(slots)
+        }
+        return [items[index] for index in sorted(indexes)]
+
+    remaining = [t for t in turns if t["turn"] not in keep]
+    for group in (
+        [t for t in remaining if t.get("event")],
+        [t for t in remaining if not t.get("event") and t.get("markers")],
+        [t for t in remaining if not t.get("event") and not t.get("markers")],
+    ):
+        for turn in spread(group, KEEP_TURNS - len(keep)):
+            keep.add(turn["turn"])
+        if len(keep) >= KEEP_TURNS:
+            break
+    return keep
+
+
 def agent_view(analysis: dict) -> dict:
-    """剥掉 _render, 只留 agent 需要读的部分（省 token）。"""
-    return {k: v for k, v in analysis.items() if k != "_render"}
+    """剥掉 _render 与渲染专用字段, 只留 agent 真正要读的部分（省 token）。
+
+    完整 analysis.json 不受影响: 它才是 validate_annotations 校验
+    ``evidence_turn`` 归属、以及 render 出图的依据。这里只压缩喂给 agent 的那份。
+    """
+    view = {k: v for k, v in analysis.items() if k != "_render"}
+    threads = []
+    for thread in view.get("threads", []):
+        thread = dict(thread)
+        turns = [_slim_turn(t) for t in thread.get("turns", [])]
+        if len(turns) > KEEP_TURNS:
+            keep = _keep_turn_numbers(turns)
+            kept = [t for t in turns if t["turn"] in keep]
+            # 明确告诉 agent 中间被折叠了多少轮, 以及怎么取回来,
+            # 免得它把「没看到」误当成「没发生」。
+            thread["turns_elided"] = len(turns) - len(kept)
+            thread["turns_elided_hint"] = (
+                "中段轮次已折叠；需要时用 fetch_reply.py --prompt <轮号> 取全文"
+            )
+            turns = kept
+        thread["turns"] = turns
+        threads.append(thread)
+    view["threads"] = threads
+    return view
 
 
 def main() -> int:

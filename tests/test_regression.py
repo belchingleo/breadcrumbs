@@ -25,7 +25,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import identity                                    # noqa: E402
 from extract_prompts import extract, is_auto       # noqa: E402
-from codex_source import normalize_thread          # noqa: E402
+from codex_source import clean_user_text, normalize_thread  # noqa: E402
 from conversation_sources import (finalize_prompts, stream_for_prompts)  # noqa: E402
 from textsim import TfidfModel                     # noqa: E402
 from validate_annotations import validate          # noqa: E402
@@ -384,7 +384,8 @@ def t_product_language_and_layers() -> None:
     n = 4
     res = {
         "n": n, "theta": 0.03,
-        "threads": {0: [1, 2], 1: [3, 4]}, "thread_id": [0, 0, 1, 1],
+        "threads": {0: [1, 2, 4], 1: [3]},
+        "thread_id": [0, 0, 1, 0],
         "steps": [
             {"to": 2, "from": 1, "link_to": 1, "link_sim": 0.8,
              "sim_prev": 0.8, "kind": None, "is_short": False,
@@ -395,29 +396,144 @@ def t_product_language_and_layers() -> None:
              "l2_hits": {}, "l3_gap_min": 1.0, "thread": 1,
              "text_head": "换个案例", "argmax_to": 2},
             {"to": 4, "from": 3, "link_to": 3, "link_sim": 0.8,
-             "sim_prev": 0.8, "kind": None, "is_short": False,
-             "l2_hits": {}, "l3_gap_min": 1.0, "thread": 1,
-             "text_head": "继续案例", "argmax_to": 3},
+             "sim_prev": 0.8, "kind": "回访", "is_short": False,
+             "l2_hits": {}, "l3_gap_min": 1.0, "thread": 0,
+             "text_head": "回到主问题", "argmax_to": 2},
         ],
         "sim_matrix": [[100] * n for _ in range(n)],
-        "texts_head": ["主问题是什么", "继续主问题", "换个案例", "继续案例"],
-        "texts_full": ["主问题是什么", "继续主问题", "换个案例", "继续案例"],
+        "texts_head": ["主问题是什么", "继续主问题", "换个案例", "回到主问题"],
+        "texts_full": ["主问题是什么", "继续主问题", "换个案例", "回到主问题"],
         "timestamps": ["2026-01-01T00:00:00Z"] * n,
         "prompt_anchors": [f"prompt-stable-{i}" for i in range(n)],
-        "sim_adj": [0.8, 0.1, 0.8], "sim_to_first": [1.0, 0.8, 0.1, 0.1],
+        "sim_adj": [0.8, 0.1, 0.8],
+        "sim_to_first": [1.0, 0.8, 0.1, 0.8],
         "trust": {"annotations": "inferred", "forced": False},
         "analysis_meta": {"corpus": {"degraded": False}},
+        "annotations": {
+            0: {
+                "name": "确认主问题",
+                "resolved": True,
+                "yield": "确认了讨论对象",
+            },
+            1: {
+                "name": "<换一个案例核查>",
+                "resolved": False,
+                "yield": "找到了一个反例，但还没有回到主问题",
+                "relation_to_trunk": "blocked",
+                "relation_note": "主问题的结论仍在等待这个案例被解释",
+                "spawned_by": "user",
+                "resolution_evidence": "后续回复没有完成核查",
+            },
+        },
     }
     with tempfile.TemporaryDirectory() as d:
         out = Path(d) / "review.html"
-        build_page([("复盘测试", {"cwd": "/x"}, res)], out)
+        build_page([("复盘测试", {
+            "cwd": "/x",
+            "first_time": "2026-01-01T00:00:00+00:00",
+            "last_time": "2026-01-01T08:48:00+00:00",
+        }, res)], out)
         page = out.read_text(encoding="utf-8")
-    for phrase in ("讨论路径", "这次改变了什么", "建议优先继续",
-                   "每条思路留下了什么", "方法与诊断"):
+    for phrase in ("一、来路图", "你是怎么走到终点的",
+                   "进入具体思路时，对应节点会点亮",
+                   "二、复盘总览", "1. 先认出来路，再决定从哪里继续",
+                   "2. 这次改变了什么", "3. 建议优先继续",
+                   "三、思路复盘", "完整讨论结构", "逐条原话",
+                   "方法与诊断"):
         check(f"页面包含「{phrase}」", phrase in page)
+    check("图上直接说明三种交互",
+          all(text in page for text in (
+              "点名称定位",
+              "点「原话」核对",
+              "点「返回」继续",
+          )))
+    check("全宽来路图和侧栏小地图同时存在",
+          'class="route-overview"' in page and
+          'class="route-minimap"' in page)
+    check("完整讨论树包含逐条 prompt 节点",
+          page.count('class="detail-node"') == n,
+          f"实际 {page.count('detail-node')}")
+    check("仍开放思路生成返回提示词",
+          "复制返回提示词" in page and
+          "我想回到这段对话里「换一个案例核查」这条思路" in page)
+    check("开放思路可直接从来路图返回",
+          'class="route-return"' in page and
+          'data-copy-prompt="map-resume-' in page)
+    check("品牌署名统一为 Breadcrumbs · 思路",
+          "Breadcrumbs · 思路" in page and
+          "Breadcrumbs · 沿原话返回" not in page)
+    check("系统生成名称使用中文直角引号",
+          "「换一个案例核查」" in page and
+          "&lt;换一个案例核查&gt;" not in page)
+    check("来路模块不重复显示当前章节",
+          "data-current-route" not in page and "正在阅读" not in page)
+    check("固定模块使用思路的面包屑命名与图标",
+          "<h2>思路的面包屑</h2>" in page and
+          'class="crumb-mark"' in page)
+    check("复盘总览与来路图同属定向区",
+          'class="orientation"' in page and
+          page.index('class="review-summary"') < page.index('class="review-layout"'))
+    check("变化与继续建议直接进入复盘总览",
+          'class="summary-outcomes"' in page and
+          'class="summary-nav"' not in page and
+          'class="change-section"' not in page and
+          'class="continue-section"' not in page)
+    check("三项来路摘要紧跟在总览副标题后",
+          page.index('class="summary-ledger"') <
+          page.index('class="summary-outcomes"'))
+    check("最初在问使用真实首问而非结构主线",
+          "<dt>最初在问</dt><dd>主问题是什么</dd>" in page)
+    check("最后停在排在未尽事宜之前",
+          page.index("<dt>最后停在</dt>") <
+          page.index("<dt>未尽事宜</dt>"))
+    check("最后停在描述用户最后行为而不是所属思路",
+          "<dt>最后停在</dt><dd>回到主问题</dd>" in page)
+    check("单场历时进入开头卡片",
+          '<p class="masthead-duration"><span>历时</span>8.8 小时</p>' in page)
+    check("分叉在右侧思路状态旁显示非价值判断的漂移程度",
+          "注意力漂移 " in page and "不评价这次漂移好坏" in page and
+          page.index("注意力漂移 ") > page.index("三、思路复盘"))
+    check("漂移程度与标题同组，不跟在收束状态后",
+          'class="thought-title-main"' in page and
+          page.index("注意力漂移 ") < page.index(">未收束</span>"))
+    check("左侧思路树不承载漂移标签",
+          "注意力漂移" not in page[
+              page.index('class="route-minimap"'):
+              page.index("</aside>")
+          ])
+    check("开放状态统一改为未收束", ">未收束</span>" in page)
+    check("思路复盘不再重复字段说明",
+          "同一套字段讲清楚" not in page)
+    check("三级复盘标题按顺序编号",
+          page.index("一、来路图") <
+          page.index("二、复盘总览") <
+          page.index("三、思路复盘"))
+    check("工作目录不进入第一视觉层", "/x" not in page)
+    check("完整结构是正文一级章节",
+          'class="review-section structure-section"' in page and
+          "<h2>完整讨论结构</h2>" in page)
     check("旧仪表盘标题已移除", "注意力分叉可视化" not in page)
     check("稳定 prompt 锚点进入页面", "prompt-stable-0" in page)
     check("未核实状态使用虚线语言", "虚线表示仅按用户提问的结构推断" in page)
+
+    # 主问题本身尚未收束时，也必须进入开放清单与继续建议；不能因为它不是
+    # “支线”就错误显示“没有明显悬空”。
+    res["annotations"][0].update({
+        "resolved": False,
+        "yield": "主问题已有中间结果，但仍在推进",
+        "resolution_evidence": "末次回复仍在执行主问题，没有得到用户确认",
+    })
+    res["annotations"][1]["resolved"] = True
+    with tempfile.TemporaryDirectory() as d:
+        main_open_out = Path(d) / "main-open.html"
+        build_page([("主问题未收束", {"cwd": "/x"}, res)], main_open_out)
+        main_open_page = main_open_out.read_text(encoding="utf-8")
+    check("未收束主问题进入开放清单",
+          "确认主问题" in main_open_page and
+          "没有明显悬空" not in main_open_page)
+    check("未收束主问题进入继续建议",
+          "当前主问题仍在推进" in main_open_page and
+          "我想回到这段对话里「确认主问题」这条思路" in main_open_page)
 
 
 def t_report_title_has_its_own_semantics() -> None:
@@ -444,8 +560,8 @@ def t_report_title_has_its_own_semantics() -> None:
           "<h1>如何记录 AI 长对话中的目标分叉</h1>" in page)
     check("语义标题进入浏览器页签",
           "<title>如何记录 AI 长对话中的目标分叉｜Breadcrumbs</title>" in page)
-    check("宿主标题退到上下文层",
-          '<p class="report-context">评估项目可行性与改进方向 · 对话复盘</p>' in page)
+    check("单会话首屏不再重复宿主标题",
+          "评估项目可行性与改进方向 · 对话复盘" not in page)
     check("副标题解释变化而不抢占标题",
           "从检测注意力漂移，转向记录目标、决定与撤销" in page)
 
@@ -614,6 +730,160 @@ def t_codex_retry_stream_alignment() -> None:
           any(text == "真正采用的回复" for _, text, _ in aligned))
 
 
+def t_agent_view_is_slim_but_analysis_is_not() -> None:
+    """agent view 瘦身不得波及完整 analysis.json。
+
+    完整分析是 validate_annotations 校验 evidence_turn 归属、以及 render 出图的
+    唯一依据；瘦的那份只喂给 agent。两者混淆过一次就会重演「标注错位照常出图」。
+    """
+    import analyze
+
+    turns = [
+        {"turn": i, "time": "2026-01-01 00:00:00", "chars": 10,
+         "text": f"第{i}轮" + "字" * i, "truncated": False,
+         "event": ("新线" if i == 5 else None),
+         "links_to": None, "markers": []}
+        for i in range(1, 21)
+    ]
+    turns[2]["text"] = "平台外壳" * 1000
+    analysis = {
+        "analysis_id": "sha256:x",
+        "threads": [{"id": 0, "first_turn": 1, "last_turn": 20,
+                     "turns": turns}],
+        "_render": {"big": "x" * 5000},
+    }
+    view = analyze.agent_view(analysis)
+    kept = view["threads"][0]["turns"]
+
+    check("agent view 剥掉 _render", "_render" not in view)
+    check("agent view 去掉渲染专用字段",
+          all(k not in kept[0] for k in ("time", "chars", "truncated")),
+          f"实际键 {list(kept[0])}")
+    check("agent view 省略空值键",
+          "links_to" not in kept[0] and "markers" not in kept[0])
+    # 只写 len(kept) <= KEEP_TURNS 是恒真的: 把常量调大, 断言照样通过。
+    # 必须同时钉住「确实折叠了」和一个与常量无关的绝对上限。
+    check("中段确实被折叠", len(kept) < len(turns),
+          f"20 轮里保留了 {len(kept)} 轮，等于没折叠")
+    check("长线不会绕过折叠", len(kept) <= 12,
+          f"保留 {len(kept)} 轮，长会话仍会灌爆上下文")
+    check("折叠遵守设定的上限", len(kept) <= analyze.KEEP_TURNS,
+          f"保留 {len(kept)} > 上限 {analyze.KEEP_TURNS}")
+    check("首尾轮次永远保留",
+          kept[0]["turn"] == 1 and kept[-1]["turn"] == 20)
+    check("带事件的轮次优先保留",
+          any(t["turn"] == 5 for t in kept))
+    check("不再把最长文本直接当作最重要",
+          all(t["turn"] != 3 for t in kept),
+          f"实际保留 {[t['turn'] for t in kept]}")
+    check("折叠数量如实告知 agent",
+          view["threads"][0]["turns_elided"] == len(turns) - len(kept))
+    check("完整 analysis 未被就地修改",
+          "time" in analysis["threads"][0]["turns"][0] and
+          len(analysis["threads"][0]["turns"]) == 20 and
+          "_render" in analysis)
+
+
+def t_sweep_plan_covers_every_thread_in_one_call() -> None:
+    """整场回读必须一次调用取回。
+
+    逐条回读会让每条线产生两次工具往返，而每次往返都要重新计费已累积的上下文。
+    真正的 token 成本在往返次数，这条测的就是那个次数。
+    """
+    import fetch_reply
+
+    view = {"threads": [
+        {"id": 0, "first_turn": 1, "last_turn": 9},
+        {"id": 1, "first_turn": 3, "last_turn": 7},
+        {"id": 2, "first_turn": 5, "last_turn": 5},
+    ]}
+    plan = fetch_reply.sweep_plan(view)
+
+    check("每条线两处位置", len(plan) == 6, f"实际 {len(plan)}")
+    check("起点取之前的回复（判断由谁引出）",
+          all(before for _, _, before, _ in plan[::2]))
+    check("末次取之后的回复（判断是否收束）",
+          all(not before for _, _, before, _ in plan[1::2]))
+    check("覆盖到每一条线",
+          {tid for tid, _, _, _ in plan} == {0, 1, 2})
+
+
+def t_reply_budget_preserves_resolution_evidence() -> None:
+    import fetch_reply
+
+    text = "开头判断。" + "中" * 3000 + "最终完成：已经修复并验证。"
+    clipped = fetch_reply.clip_reply(text, 300)
+    check("超长回复仍保留开头", clipped.startswith("开头判断"))
+    check("超长回复仍保留末尾结论", clipped.endswith("最终完成：已经修复并验证。"))
+    plan = [
+        (0, 3, True, "起点前"),
+        (1, 3, True, "起点前"),
+        (0, 8, False, "末次后"),
+    ]
+    compact = fetch_reply.compact_sweep_plan(plan)
+    check("相同回复位置只输出一次", len(compact) == 2, f"实际 {compact}")
+    check("合并后仍保留全部思路引用", compact[0][0] == [0, 1])
+
+
+def t_codex_ambient_context_is_not_a_prompt() -> None:
+    raw = """
+<in-app-browser-context source="ambient-ui-state">
+Current URL: http://127.0.0.1:8765/example.html
+</in-app-browser-context>
+<environment_context>
+  <cwd>/tmp/project</cwd>
+</environment_context>
+
+真正的用户请求
+"""
+    check("浏览器与环境外壳被移除",
+          clean_user_text(raw) == "真正的用户请求",
+          clean_user_text(raw))
+    check("无附件时请求标题也被移除",
+          clean_user_text(
+              "## My request for Codex:\n真正的用户请求"
+          ) == "真正的用户请求")
+
+
+def t_engineering_ids_stay_out_of_the_body() -> None:
+    """agent_note 里的记录号不得出现在正文一级。
+
+    实测标注里 11 条有 5 条 agent_note 写着「轮 3」「11 轮」，
+    而它当时被渲染成思路卡片里的「核对备注」——用户可见层。
+    """
+    n = 2
+    res = {
+        "n": n, "theta": 0.03,
+        "threads": {0: [1, 2]}, "thread_id": [0, 0],
+        "steps": [{"to": 2, "from": 1, "link_to": 1, "link_sim": 0.8,
+                   "sim_prev": 0.8, "kind": None, "is_short": False,
+                   "l2_hits": {}, "l3_gap_min": 1.0, "thread": 0,
+                   "text_head": "继续", "argmax_to": 1}],
+        "sim_matrix": [[100] * n for _ in range(n)],
+        "texts_head": ["主问题是什么", "继续主问题"],
+        "texts_full": ["主问题是什么", "继续主问题"],
+        "timestamps": ["2026-01-01T00:00:00Z"] * n,
+        "prompt_anchors": [f"prompt-{i}" for i in range(n)],
+        "sim_adj": [0.8], "sim_to_first": [1.0, 0.8],
+        "trust": {"annotations": "confirmed", "forced": False},
+        "analysis_meta": {"corpus": {"degraded": False}},
+        "annotations": {0: {
+            "name": "确认主问题", "resolved": True,
+            "yield": "确认了讨论对象",
+            "agent_note": "轮3 之前 AI 还没提到这个角度。11 轮，最长的支线。",
+        }},
+    }
+    with tempfile.TemporaryDirectory() as d:
+        out = Path(d) / "review.html"
+        build_page([("复盘测试", {"cwd": "/x"}, res)], out)
+        page = out.read_text(encoding="utf-8")
+
+    check("正文不再出现「核对备注」字段", "核对备注" not in page)
+    body, _, diagnostics = page.partition("方法与诊断")
+    check("agent_note 内容不落在正文", "轮3 之前" not in body)
+    check("agent_note 内容保留在诊断层", "轮3 之前" in diagnostics)
+
+
 TEST_GROUPS = [
         ("P0-1 分析/标注错位", [t_thread_count_mismatch, t_signature_change,
                                 t_analysis_id_mismatch, t_missing_relation,
@@ -631,11 +901,16 @@ TEST_GROUPS = [
                           t_report_title_has_its_own_semantics,
                           t_report_title_survives_annotation_handoff,
                           t_report_title_falls_back_to_confirmed_trunk,
-                          t_false_merge_not_painted_as_confirmed_path]),
+                          t_false_merge_not_painted_as_confirmed_path,
+                          t_engineering_ids_stay_out_of_the_body]),
+        ("Agent 上下文成本", [t_agent_view_is_slim_but_analysis_is_not,
+                              t_sweep_plan_covers_every_thread_in_one_call,
+                              t_reply_budget_preserves_resolution_evidence]),
         ("可恢复安装与更新", [t_install_keeps_recoverable_backup]),
         ("产物体积与标注复用", [t_sim_matrix_is_opt_in,
                             t_realign_rescues_annotations]),
         ("Codex 输入适配", [t_codex_thread_normalization,
+                            t_codex_ambient_context_is_not_a_prompt,
                             t_codex_retry_stream_alignment]),
 ]
 

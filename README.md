@@ -2,6 +2,8 @@
 
 > 《糖果屋》中汉赛尔和格莱特被丢进森林，沿路撒下面包屑，希望天亮后能原路走回去。
 
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/4e78f9e0-8189-41cc-b177-af680dbb433c" />
+
 复盘一段较长的 **Claude Code** 或 **Codex** 对话：把你自己输入的 prompt 重建成
 可返回的原话锚点与讨论路径，核实每条派生思路留下了什么、怎样影响主问题、
 哪些仍未收束，并生成一份本地 HTML 复盘稿。

@@ -1,0 +1,2058 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>社区花园如何形成持续协作｜Breadcrumbs</title>
+<style>/* Hallmark · genre: editorial · macrostructure: Long Document + Route Map · tone: editorial · anchor hue: 240 · theme: Almanac · enrichment: Tier-B SVG · nav: N3 · footer: Ft2 */
+/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V4 */
+:root {
+  --color-paper: oklch(97% 0.009 240);
+  --color-paper-deep: oklch(94% 0.014 240);
+  --color-paper-lift: oklch(99% 0.004 240);
+  --color-ink: oklch(20% 0.025 250);
+  --color-muted: oklch(48% 0.025 245);
+  --color-faint: oklch(65% 0.018 245);
+  --color-rule: oklch(84% 0.018 240);
+  --color-accent: oklch(48% 0.085 252);
+  --color-accent-strong: oklch(39% 0.105 252);
+  --color-accent-ink: oklch(98% 0.005 240);
+  --color-accent-soft: oklch(92% 0.022 248);
+  --color-structure: oklch(47% 0.018 245);
+  --color-structure-soft: oklch(94% 0.012 240);
+  --color-table-rule: oklch(84% 0.012 240);
+  --color-warn: oklch(48% 0.11 65);
+  --color-warn-soft: oklch(93% 0.035 75);
+  --color-danger: oklch(48% 0.15 25);
+  --color-danger-soft: oklch(93% 0.035 25);
+  --color-overlay: oklch(20% 0.025 250 / 0.28);
+  --color-shadow: oklch(20% 0.025 250 / 0.1);
+  --color-scroll-thumb: color-mix(
+    in oklch,
+    var(--color-table-rule) 58%,
+    transparent
+  );
+  --color-scroll-thumb-hover: color-mix(
+    in oklch,
+    var(--color-table-rule) 72%,
+    transparent
+  );
+  --color-scroll-track: oklch(100% 0 0 / 0);
+  --color-breadcrumb-path: oklch(62% 0.012 245 / 0.3);
+
+  --font-display: "Songti SC", "STSong", "Noto Serif CJK SC", serif;
+  --font-body: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-mono: "SFMono-Regular", "Cascadia Mono", monospace;
+
+  --text-xs: 0.76rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5625rem;
+  --text-xl: 1.953rem;
+  --text-2xl: 2.441rem;
+  --text-display: clamp(2.5rem, 4.5vw + 0.5rem, 4.75rem);
+
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.6rem;
+  --radius-lg: 1rem;
+  --measure: 66ch;
+  --rail-width: 19rem;
+  --z-base: 1;
+  --z-sticky: 200;
+  --z-modal: 400;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+
+  color-scheme: light dark;
+}
+
+/* 深色主题只重写颜色层, 版式与间距不动。复盘稿常在夜里读, 而且它是本地文件,
+   没有站点级主题开关可依赖, 所以以系统偏好为准, 同时留 data-theme 钩子。 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-paper: oklch(18% 0.018 250);
+    --color-paper-deep: oklch(14% 0.018 250);
+    --color-paper-lift: oklch(23% 0.020 250);
+    --color-ink: oklch(93% 0.012 245);
+    --color-muted: oklch(72% 0.020 245);
+    --color-faint: oklch(55% 0.018 245);
+    --color-rule: oklch(34% 0.018 245);
+    --color-accent: oklch(76% 0.095 252);
+    --color-accent-strong: oklch(86% 0.105 252);
+    --color-accent-ink: oklch(16% 0.020 250);
+    --color-accent-soft: oklch(30% 0.045 250);
+    --color-structure: oklch(70% 0.020 245);
+    --color-structure-soft: oklch(27% 0.015 245);
+    --color-table-rule: oklch(33% 0.014 245);
+    --color-warn: oklch(80% 0.110 70);
+    --color-warn-soft: oklch(30% 0.050 70);
+    --color-danger: oklch(74% 0.130 25);
+    --color-danger-soft: oklch(30% 0.060 25);
+    --color-overlay: oklch(8% 0.020 250 / 0.6);
+    --color-shadow: oklch(4% 0.020 250 / 0.5);
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-paper: oklch(18% 0.018 250);
+  --color-paper-deep: oklch(14% 0.018 250);
+  --color-paper-lift: oklch(23% 0.020 250);
+  --color-ink: oklch(93% 0.012 245);
+  --color-muted: oklch(72% 0.020 245);
+  --color-faint: oklch(55% 0.018 245);
+  --color-rule: oklch(34% 0.018 245);
+  --color-accent: oklch(76% 0.095 252);
+  --color-accent-strong: oklch(86% 0.105 252);
+  --color-accent-ink: oklch(16% 0.020 250);
+  --color-accent-soft: oklch(30% 0.045 250);
+  --color-structure: oklch(70% 0.020 245);
+  --color-structure-soft: oklch(27% 0.015 245);
+  --color-table-rule: oklch(33% 0.014 245);
+  --color-warn: oklch(80% 0.110 70);
+  --color-warn-soft: oklch(30% 0.050 70);
+  --color-danger: oklch(74% 0.130 25);
+  --color-danger-soft: oklch(30% 0.060 25);
+  --color-overlay: oklch(8% 0.020 250 / 0.6);
+  --color-shadow: oklch(4% 0.020 250 / 0.5);
+}
+
+/* tokens.css is inlined immediately before this file by render.py. */
+* { box-sizing: border-box; }
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scroll-thumb) var(--color-scroll-track);
+}
+*::-webkit-scrollbar {
+  width: 0.55rem;
+  height: 0.55rem;
+}
+*::-webkit-scrollbar-track {
+  background: var(--color-scroll-track);
+}
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--color-scroll-thumb);
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scroll-thumb-hover);
+  background-clip: padding-box;
+}
+html, body { overflow-x: clip; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  font: 400 var(--text-base)/1.68 var(--font-body);
+  text-rendering: optimizeLegibility;
+}
+button, a { font: inherit; }
+a { color: inherit; }
+h1, h2, h3 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-style: normal;
+}
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+button:active,
+a:active { color: var(--color-accent); }
+button:disabled,
+a[aria-disabled="true"] {
+  color: var(--color-faint);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.page-shell {
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding: var(--space-lg) clamp(var(--space-md), 4vw, var(--space-2xl)) var(--space-2xl);
+}
+.masthead {
+  display: grid;
+  gap: var(--space-xl);
+  padding-block: var(--space-lg) var(--space-2xl);
+  border-bottom: 1px solid var(--color-ink);
+}
+.wordmark {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.report-context,
+.session-context {
+  margin: calc(var(--space-xl) * -0.65) 0 0;
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+}
+.masthead h1 {
+  max-width: 20ch;
+  min-width: 0;
+  margin: 0;
+  font: 700 var(--text-display)/1.08 var(--font-display);
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+.lede {
+  max-width: 48ch;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-md);
+}
+.session-heading {
+  display: grid;
+  gap: var(--space-xs);
+  padding-block: var(--space-xl);
+}
+.session-heading-meta {
+  padding-block: var(--space-lg) 0;
+}
+.session-heading h2 {
+  max-width: 24ch;
+  margin: 0;
+  font: 700 var(--text-2xl)/1.18 var(--font-display);
+  letter-spacing: -0.025em;
+}
+.session-summary {
+  max-width: 50ch;
+  margin: var(--space-xs) 0 0;
+  color: var(--color-muted);
+}
+.session-meta {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.trust-note {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-sm);
+  max-width: var(--measure);
+  padding-block: var(--space-sm);
+  border-block: 1px solid var(--color-rule);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.trust-mark {
+  width: 1.8rem;
+  height: 0;
+  margin-top: 0.78em;
+  border-top: 2px solid var(--color-accent);
+}
+.trust-note.inferred .trust-mark { border-top-style: dashed; }
+.trust-note.warning {
+  color: var(--color-warn);
+  border-color: var(--color-warn);
+}
+.trust-note.warning .trust-mark { border-color: var(--color-warn); }
+.trust-note.danger {
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+.trust-note.danger .trust-mark { border-color: var(--color-danger); }
+.trust-note p { margin: 0; }
+.trust-note b { color: currentColor; }
+
+.review-layout {
+  display: grid;
+  gap: var(--space-2xl);
+  align-items: start;
+  padding-block: var(--space-2xl);
+}
+.path-panel {
+  min-width: 0;
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-rule);
+}
+.path-panel h2,
+.review-body h2 {
+  margin: 0;
+  font: 700 var(--text-lg)/1.22 var(--font-display);
+  letter-spacing: -0.018em;
+}
+.path-intro {
+  margin: var(--space-xs) 0 var(--space-lg);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.journey {
+  display: flex;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0 0 var(--space-sm);
+  list-style: none;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+.journey-stop {
+  position: relative;
+  flex: 0 0 13rem;
+  min-width: 0;
+  padding-inline-start: var(--space-lg);
+}
+.journey-stop::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.55rem;
+  width: 0.62rem;
+  height: 0.62rem;
+  border: 2px solid var(--color-accent);
+  border-radius: 50%;
+  background: var(--color-paper);
+}
+.journey-stop::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0.32rem;
+  top: 1.35rem;
+  bottom: calc(-1 * var(--space-lg));
+  border-inline-start: 1px dashed var(--color-accent);
+}
+.journey-stop.inferred::before { border-style: dashed; }
+.journey-stop:last-child::after { display: none; }
+.journey-link {
+  display: block;
+  min-width: 0;
+  color: var(--color-ink);
+  font-weight: 650;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.journey-link:hover { color: var(--color-accent); }
+.journey-quote {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 2.75rem;
+  margin-top: var(--space-2xs);
+  padding: 0;
+  border: 0;
+  color: var(--color-muted);
+  background: transparent;
+  font-size: var(--text-xs);
+  text-align: start;
+  text-decoration: underline;
+  text-decoration-color: var(--color-rule);
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.journey-quote:hover { color: var(--color-accent); }
+.journey-omitted {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
+.review-body {
+  min-width: 0;
+  max-width: 58rem;
+}
+.review-section {
+  display: grid;
+  gap: var(--space-lg);
+  padding-block: 0 var(--space-3xl);
+  scroll-margin-top: var(--space-lg);
+}
+.section-intro {
+  max-width: var(--measure);
+  margin: calc(-1 * var(--space-sm)) 0 0;
+  color: var(--color-muted);
+}
+.change-list {
+  display: grid;
+  gap: var(--space-lg);
+  max-width: var(--measure);
+}
+.change-item {
+  display: grid;
+  gap: var(--space-xs);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--color-rule);
+}
+.change-item h3 {
+  margin: 0;
+  font: 700 var(--text-md)/1.35 var(--font-display);
+}
+.change-item p { margin: 0; }
+.source-link {
+  width: fit-content;
+  min-height: 2.75rem;
+  padding: var(--space-xs) 0;
+  border: 0;
+  color: var(--color-accent);
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 0.22em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.source-link:hover { color: var(--color-ink); }
+
+.recommendation {
+  position: relative;
+  display: grid;
+  gap: var(--space-md);
+  max-width: var(--measure);
+  padding-block: var(--space-xl);
+  border-block: 1px solid var(--color-ink);
+}
+.recommendation::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: -2px;
+  width: 3.2rem;
+  border-top: 3px solid var(--color-accent);
+}
+.recommendation h3 {
+  max-width: 22ch;
+  margin: 0;
+  font: 700 var(--text-xl)/1.2 var(--font-display);
+  letter-spacing: -0.02em;
+}
+.recommendation p { margin: 0; }
+.recommendation .reason { color: var(--color-muted); }
+
+.thought-list { display: grid; }
+.thought {
+  display: grid;
+  gap: var(--space-lg);
+  padding-block: var(--space-xl);
+  border-top: 1px solid var(--color-rule);
+  scroll-margin-top: var(--space-lg);
+}
+.thought-head {
+  display: grid;
+  gap: var(--space-xs);
+}
+.thought-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-lg);
+}
+.thought h3 {
+  min-width: 0;
+  margin: 0;
+  font: 700 var(--text-md)/1.35 var(--font-display);
+  overflow-wrap: anywhere;
+}
+.state {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.state.open { color: var(--color-warn); }
+.confidence {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+.confidence::before {
+  content: "";
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-inline-end: var(--space-xs);
+  vertical-align: 0.08em;
+  background: var(--color-structure);
+}
+.confidence.inferred::before {
+  border: 1px dashed var(--color-structure);
+  background: transparent;
+}
+.thought-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+.thought-field { min-width: 0; }
+.thought-field dt {
+  margin-bottom: var(--space-2xs);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.thought-field dd {
+  max-width: var(--measure);
+  margin: 0;
+}
+.origin-quote {
+  margin: 0;
+  padding-inline-start: var(--space-md);
+  border-inline-start: 1px solid var(--color-rule);
+  color: var(--color-muted);
+  font-family: var(--font-display);
+}
+.thought-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+}
+
+.method {
+  margin-top: var(--space-xl);
+  border-top: 1px solid var(--color-ink);
+}
+.method summary {
+  min-height: 3rem;
+  padding-block: var(--space-md);
+  font-weight: 650;
+  cursor: pointer;
+}
+.method-body {
+  display: grid;
+  gap: var(--space-xl);
+  padding-block: var(--space-md) var(--space-xl);
+}
+.method-copy {
+  max-width: var(--measure);
+  margin: 0;
+  color: var(--color-muted);
+}
+.method-subhead {
+  margin-block: var(--space-lg) var(--space-xs);
+  font: 650 var(--text-sm)/1.4 var(--font-body);
+}
+.method-notes {
+  display: grid;
+  gap: var(--space-sm);
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.method-notes dt {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+.method-notes dd {
+  margin: 0;
+  max-width: var(--measure);
+}
+.diagnostic {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.diagnostic th,
+.diagnostic td {
+  padding: var(--space-sm) var(--space-xs);
+  border-bottom: 1px solid var(--color-rule);
+  text-align: start;
+  vertical-align: top;
+}
+.diagnostic th { color: var(--color-muted); font-weight: 500; }
+.diagnostic td:first-child,
+.diagnostic th:first-child {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.code-facts {
+  max-width: 100%;
+  margin: 0;
+  padding: var(--space-md);
+  color: var(--color-muted);
+  background: var(--color-paper-deep);
+  font: var(--text-xs)/1.65 var(--font-mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.foot-line {
+  padding-block: var(--space-xl);
+  border-top: 1px solid var(--color-rule);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.foot-line p { margin: 0; }
+
+.source-dialog {
+  width: min(38rem, calc(100% - 2rem));
+  max-height: min(80dvh, 48rem);
+  margin-inline-end: 0;
+  border: 0;
+  border-inline-start: 1px solid var(--color-ink);
+  padding: 0;
+  color: var(--color-ink);
+  background: var(--color-paper);
+}
+.source-dialog::backdrop { background: var(--color-overlay); }
+.source-inner {
+  display: grid;
+  gap: var(--space-lg);
+  min-height: 100%;
+  padding: clamp(var(--space-lg), 5vw, var(--space-2xl));
+}
+.dialog-close {
+  justify-self: end;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: 1px solid var(--color-rule);
+  border-radius: 50%;
+  color: var(--color-ink);
+  background: transparent;
+  cursor: pointer;
+}
+.dialog-close:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.dialog-label {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.source-dialog h2 {
+  margin: 0;
+  font: 700 var(--text-lg)/1.3 var(--font-display);
+}
+.source-text {
+  margin: 0;
+  font: var(--text-base)/1.75 var(--font-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.source-tech {
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-rule);
+  color: var(--color-muted);
+  font: var(--text-xs)/1.6 var(--font-mono);
+}
+.source-tech summary { cursor: pointer; }
+.source-anchor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+@media (min-width: 40rem) {
+  .masthead {
+    grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
+    align-items: end;
+  }
+  .wordmark { grid-column: 1 / -1; }
+  .masthead h1 { grid-column: 1; }
+  .masthead .lede { grid-column: 2; }
+  .thought-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); }
+}
+
+@media (min-width: 60rem) {
+  .review-layout { grid-template-columns: var(--rail-width) minmax(0, 1fr); }
+  .path-panel {
+    position: sticky;
+    top: var(--space-lg);
+    max-height: calc(100dvh - 2 * var(--space-lg));
+    padding-inline-end: var(--space-xl);
+    padding-bottom: 0;
+    border-inline-end: 1px solid var(--color-rule);
+    border-bottom: 0;
+    overflow-y: auto;
+  }
+  .journey {
+    display: grid;
+    gap: var(--space-lg);
+    padding-bottom: 0;
+    overflow: visible;
+  }
+  .journey-stop { min-height: 4.2rem; }
+}
+
+@media (pointer: coarse) {
+  .source-link,
+  .journey-quote,
+  .journey-link { min-height: 3rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 150ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
+  }
+}
+
+/* Map / Diagram redesign ------------------------------------------------- */
+.page-shell {
+  width: min(100%, 100rem);
+  padding-inline: clamp(var(--space-md), 4.5vw, var(--space-3xl));
+}
+.masthead {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+  padding: clamp(var(--space-lg), 4vw, var(--space-xl));
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-paper-lift);
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+.masthead h1 {
+  grid-column: 1;
+  max-width: 22ch;
+  font-size: clamp(2.35rem, 4vw, 3.65rem);
+  line-height: 1.08;
+}
+.masthead .lede {
+  grid-column: 1;
+  max-width: 54ch;
+  font-size: var(--text-base);
+}
+.masthead-duration {
+  display: inline-flex;
+  gap: var(--space-xs);
+  align-items: baseline;
+  width: fit-content;
+  margin: 0;
+  color: var(--color-ink);
+  font: 700 var(--text-md)/1.2 var(--font-display);
+}
+.masthead-duration span {
+  color: var(--color-muted);
+  font: 500 var(--text-xs)/1.2 var(--font-body);
+  letter-spacing: 0.06em;
+}
+.wordmark {
+  grid-column: 1;
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  text-transform: none;
+}
+.section-kicker {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-accent);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+}
+.section-head {
+  display: grid;
+  gap: var(--space-xs);
+}
+.section-head h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font: 700 clamp(2rem, 3vw, 2.65rem)/1.12 var(--font-display);
+  letter-spacing: -0.032em;
+  text-wrap: balance;
+}
+.route-heading h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font: 700 clamp(1.9rem, 2.6vw, 2.35rem)/1.16 var(--font-display);
+  letter-spacing: -0.028em;
+}
+.review-summary h2 {
+  margin: 0;
+  color: var(--color-ink);
+  font: 700 clamp(1.9rem, 2.6vw, 2.35rem)/1.16 var(--font-display);
+  letter-spacing: -0.028em;
+}
+.orientation-subtitle {
+  margin: var(--space-xs) 0 0;
+  color: var(--color-muted);
+  font-size: var(--text-md);
+  font-weight: 650;
+  line-height: 1.4;
+}
+.summary-step-title {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+.trust-note {
+  width: fit-content;
+  max-width: var(--measure);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--text-xs);
+}
+.trust-mark {
+  width: 0.45rem;
+  height: 0.45rem;
+  margin-top: 0.45em;
+  border: 0;
+  border-radius: 50%;
+  background: var(--color-accent-strong);
+}
+.trust-note.inferred .trust-mark {
+  border: 1px solid var(--color-accent-strong);
+  background: transparent;
+}
+.session-heading-meta:empty { display: none; }
+
+.route-overview {
+  padding-block: var(--space-lg);
+  border-bottom: 0;
+}
+.route-heading {
+  display: grid;
+  gap: var(--space-sm);
+  align-items: end;
+  margin-bottom: var(--space-md);
+}
+.route-heading > p {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--color-muted);
+}
+.route-heading > .orientation-subtitle {
+  color: var(--color-ink);
+}
+.map-instructions {
+  display: block;
+  padding: 0;
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+.route-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  background: transparent;
+  border: 0;
+  /* 图比视口宽得多时, 用边缘渐隐说明「这边还有」。没有这个提示,
+     用户会把裁切当成图的结尾, 也就不会去滚。 */
+  --fade-l: 0px;
+  --fade-r: 0px;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade-l),
+    #000 calc(100% - var(--fade-r)),
+    transparent 100%
+  );
+}
+.route-scroll.can-scroll-left { --fade-l: 3rem; }
+.route-scroll.can-scroll-right { --fade-r: 3rem; }
+.route-map {
+  position: relative;
+  width: max(
+    100%,
+    calc(var(--map-width) + var(--map-pad, 0px) + var(--map-pad, 0px))
+  );
+  height: var(--map-height);
+  min-width: 0;
+  /* 来路图是从起点向右展开的道路，不是居中的插画。无论窗口多宽，
+     起点都稳定贴近内容左边缘，避免阅读联动后整张图向右漂。 */
+  --map-offset: 0px;
+}
+.route-lines {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: var(--map-offset);
+  width: var(--map-width);
+  height: var(--map-height);
+  overflow: visible;
+}
+.route-edge,
+.mini-edge {
+  fill: none;
+  stroke: var(--color-faint);
+  stroke-width: 1.7;
+  stroke-dasharray: 7 8;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transition: stroke var(--dur-short) var(--ease-out),
+              stroke-width var(--dur-short) var(--ease-out);
+}
+.route-edge.returning {
+  stroke-dasharray: 2 5;
+}
+.mini-edge {
+  stroke: var(--color-breadcrumb-path);
+  stroke-width: 1.4;
+}
+.route-edge.is-active,
+.mini-edge.is-active {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+.route-stop {
+  position: absolute;
+  inset-inline-start: calc(var(--route-x) + var(--map-offset));
+  top: var(--route-y);
+  width: 10.75rem;
+  transform: translate(-50%, -0.68rem);
+}
+/* 重访节点收窄并降调: 名字在上游已经出现过, 这里只需要认出回到了哪条。 */
+.route-stop.repeat {
+  width: 7.5rem;
+}
+.route-stop.repeat .route-node {
+  opacity: 0.78;
+}
+.route-stop.repeat .route-node strong {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+.route-node {
+  position: relative;
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+  min-height: 4rem;
+  padding: 1.75rem var(--space-xs) 0;
+  border: 0;
+  border-radius: 0;
+  color: var(--color-ink);
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+  text-decoration: none;
+  transition: color var(--dur-short) var(--ease-out);
+}
+.route-node::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1.18rem;
+  height: 1.18rem;
+  transform: translateX(-50%);
+  border: 2px solid var(--color-structure);
+  border-radius: 50%;
+  background: var(--color-paper);
+  transition: border-color var(--dur-short) var(--ease-out),
+              transform var(--dur-short) var(--ease-out);
+}
+.route-node::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.37rem;
+  width: 0.44rem;
+  height: 0.44rem;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--color-structure);
+  transition: background-color var(--dur-short) var(--ease-out),
+              transform var(--dur-short) var(--ease-out);
+}
+.route-stop.branch .route-node::before {
+  border-style: dashed;
+}
+.route-node:hover,
+.route-node.is-active {
+  color: var(--color-accent-strong);
+}
+.route-node.is-active::before {
+  border-color: var(--color-accent-strong);
+  transform: translateX(-50%) scale(1.1);
+}
+.route-node.is-active::after {
+  background: var(--color-accent-strong);
+  transform: translateX(-50%) scale(1.12);
+}
+.route-verb {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+/* 单行 nowrap 会把「某条支线提前出现在正文」截成「某条支线提前出现在…」——
+   节点名截断等于这张图没写名字。放到两行, 配合加宽的节点基本不再截断。 */
+.route-node strong {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.route-stop.inferred .route-node {
+  color: var(--color-muted);
+}
+.route-source {
+  display: block;
+  min-height: 2rem;
+  padding: var(--space-2xs) 0 0;
+  border: 0;
+  color: var(--color-accent);
+  background: transparent;
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.route-source:hover {
+  color: var(--color-ink);
+}
+.route-node-actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+}
+.route-return {
+  min-height: 2rem;
+  padding: var(--space-2xs) 0 0;
+  border: 0;
+  color: var(--color-accent);
+  background: transparent;
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.route-return:hover,
+.route-return[data-state="copied"] {
+  color: var(--color-ink);
+}
+
+.review-layout {
+  display: block;
+  gap: clamp(var(--space-xl), 4vw, var(--space-3xl));
+  padding-block: var(--space-2xl);
+}
+.path-panel {
+  position: sticky;
+  top: var(--space-xs);
+  z-index: var(--z-sticky);
+  max-height: none;
+  margin-inline: 0;
+  padding: var(--space-md);
+  border-block: 0;
+  border-bottom: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-paper-lift);
+  box-shadow: 0 1px 3px var(--color-shadow);
+  overflow: visible;
+}
+.path-panel-head {
+  display: block;
+}
+.path-panel-head .section-kicker { margin: 0; }
+.path-panel-head h2 {
+  overflow: hidden;
+  font-size: var(--text-lg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.path-panel-head {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+.crumb-mark {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 1.5rem;
+  color: var(--color-accent-strong);
+}
+.crumb-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.crumb-mark path,
+.crumb-mark circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.45;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.crumb-mark circle {
+  fill: currentColor;
+  stroke: none;
+}
+.path-intro,
+.route-minimap,
+.reading-index { display: none; }
+.route-minimap {
+  position: relative;
+  width: 100%;
+  height: var(--mini-height);
+  min-height: 9rem;
+  overflow: hidden;
+}
+.route-minimap svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: var(--mini-height);
+  overflow: visible;
+}
+.mini-node {
+  position: absolute;
+  inset-inline-start: var(--mini-x);
+  top: var(--mini-y);
+  display: grid;
+  grid-template-columns: 0.8rem minmax(0, 1fr);
+  gap: var(--space-xs);
+  align-items: center;
+  width: calc(100% - var(--mini-x) - var(--space-xs));
+  min-height: 2.75rem;
+  transform: translateY(-50%);
+  color: var(--color-muted);
+  text-decoration: none;
+}
+.mini-node > .mini-dot {
+  width: 0.68rem;
+  height: 0.68rem;
+  border: 2px solid var(--color-faint);
+  border-radius: 50%;
+  background: var(--color-paper);
+}
+.mini-node.inferred > .mini-dot {
+  border-style: dashed;
+}
+.mini-node.branch > .mini-dot {
+  border-style: dashed;
+}
+.mini-node strong {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mini-node-copy {
+  display: grid;
+  gap: var(--space-2xs);
+  min-width: 0;
+}
+.drift-badge {
+  width: fit-content;
+  padding: 0.08rem var(--space-2xs);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  background: var(--color-structure-soft);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.drift-高 {
+  color: var(--color-accent-strong);
+  background: var(--color-accent-soft);
+}
+.mini-node:hover,
+.mini-node.is-active {
+  color: var(--color-ink);
+}
+.mini-node.is-active > .mini-dot {
+  border-color: var(--color-accent-strong);
+  background: var(--color-accent-strong);
+}
+.mini-node.is-active strong {
+  color: var(--color-accent-strong);
+  font-weight: 700;
+}
+.reading-index {
+  display: grid;
+  gap: var(--space-xs);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-rule);
+}
+.reading-index p {
+  margin: 0 0 var(--space-xs);
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+}
+.reading-index a {
+  min-height: 2.3rem;
+  padding-block: var(--space-xs);
+  color: var(--color-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.reading-index a:hover,
+.reading-index a.is-active {
+  color: var(--color-ink);
+}
+.reading-index a.is-active {
+  font-weight: 700;
+}
+.reading-index a.is-active::before {
+  content: "→";
+  margin-inline-end: var(--space-xs);
+  color: var(--color-accent);
+}
+.path-panel .reading-index {
+  display: none;
+}
+
+.review-body {
+  max-width: 64rem;
+  margin-top: var(--space-2xl);
+}
+.review-summary {
+  display: grid;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-3xl);
+  padding-block: var(--space-xl);
+  border-top: 0;
+  border-bottom: 0;
+  scroll-margin-top: var(--space-2xl);
+}
+.orientation {
+  padding-block-end: var(--space-xl);
+}
+.orientation .review-summary {
+  margin-bottom: 0;
+  padding-block: var(--space-lg) var(--space-xl);
+}
+.summary-outcomes {
+  display: grid;
+  gap: var(--space-2xl);
+  padding-block: var(--space-lg);
+}
+.summary-outcome {
+  min-width: 0;
+}
+.summary-outcome h3 {
+  margin: 0 0 var(--space-lg);
+  color: var(--color-ink);
+  font: 700 var(--text-md)/1.35 var(--font-body);
+}
+.summary-outcome h4 {
+  margin: 0;
+  font: 650 var(--text-base)/1.5 var(--font-body);
+}
+.summary-outcome p {
+  max-width: var(--measure);
+  margin: var(--space-xs) 0 0;
+  color: var(--color-muted);
+}
+.summary-change-list {
+  display: grid;
+  gap: var(--space-lg);
+}
+.summary-outcome .source-link {
+  font-size: var(--text-sm);
+}
+.summary-ledger {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+.summary-ledger > div {
+  display: grid;
+  gap: var(--space-xs);
+  align-content: start;
+  padding-block: var(--space-md);
+  border-top: 0;
+}
+.summary-ledger dt {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+.summary-ledger dd {
+  margin: 0;
+  font: 650 var(--text-base)/1.5 var(--font-body);
+}
+.summary-ledger .source-link {
+  font-size: var(--text-sm);
+}
+
+.review-section {
+  gap: var(--space-lg);
+  padding-block-end: calc(var(--space-3xl) + var(--space-lg));
+  scroll-margin-top: var(--space-2xl);
+}
+.review-section + .review-section {
+  padding-block-start: var(--space-3xl);
+  border-top: 0;
+}
+.section-intro {
+  margin: calc(-1 * var(--space-sm)) 0 var(--space-sm);
+}
+.change-list {
+  gap: 0;
+}
+.change-item {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  border-top: 0;
+  border-inline-start: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-paper-lift);
+}
+.change-item + .change-item { margin-top: var(--space-sm); }
+.change-item h3 {
+  font: 650 var(--text-base)/1.5 var(--font-body);
+  letter-spacing: 0;
+}
+
+.recommendation {
+  max-width: none;
+  padding: var(--space-xl);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--color-paper-lift);
+  box-shadow: 0 1px 2px var(--color-shadow);
+}
+.recommendation::before {
+  display: none;
+}
+.recommendation-label {
+  margin: 0;
+  color: var(--color-accent-strong);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+}
+.recommendation h3 {
+  max-width: 36ch;
+  font: 650 var(--text-md)/1.4 var(--font-body);
+  letter-spacing: 0;
+}
+.recommendation-actions,
+.thought-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm) var(--space-lg);
+}
+.resume-copy {
+  min-height: 2.75rem;
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  color: var(--color-accent-strong);
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--dur-short) var(--ease-out),
+              background-color var(--dur-short) var(--ease-out);
+}
+.resume-copy:hover,
+.resume-copy[data-state="copied"] {
+  color: var(--color-accent-ink);
+  background: var(--color-accent-strong);
+}
+.resume-copy:active {
+  transform: translateY(1px);
+}
+.thought-list {
+  border-bottom: 0;
+}
+.thought {
+  gap: var(--space-md);
+  padding-block: var(--space-xl);
+  border-top: 0;
+  transition: background-color var(--dur-short) var(--ease-out);
+}
+.thought + .thought { margin-top: var(--space-md); }
+.thought.is-active {
+  padding-inline-start: 0;
+  border-inline-start: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.thought-head { position: relative; }
+.thought-title-row {
+  align-items: center;
+}
+.thought-title-main {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  align-items: baseline;
+}
+.thought h3 {
+  font: 650 var(--text-md)/1.4 var(--font-body);
+  letter-spacing: 0;
+}
+.state {
+  padding: var(--space-2xs) var(--space-xs);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+}
+.state.open {
+  border-color: var(--color-warn);
+}
+.thought-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-table-rule);
+  border-radius: var(--radius-md);
+}
+.thought-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  padding: 0;
+}
+.thought-field + .thought-field {
+  border-top: 1px solid var(--color-table-rule);
+}
+.thought-field dt {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--color-muted);
+  background: var(--color-structure-soft);
+}
+.thought-field dd {
+  max-width: none;
+  padding: var(--space-md);
+}
+.origin-quote {
+  width: 100%;
+  max-width: none;
+  padding: var(--space-md) var(--space-lg);
+  border-inline-start: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-structure-soft);
+}
+.return-kit {
+  border-top: 0;
+}
+.return-kit summary {
+  min-height: 3rem;
+  padding-block: var(--space-sm);
+  color: var(--color-accent-strong);
+  font-weight: 700;
+  cursor: pointer;
+}
+.return-kit-body {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-md) 0 var(--space-lg);
+}
+.return-kit-body > p {
+  margin: 0;
+  color: var(--color-muted);
+}
+.return-kit pre {
+  max-width: 100%;
+  margin: 0;
+  padding: var(--space-md);
+  border: 1px solid var(--color-rule);
+  background: var(--color-paper-lift);
+  font: var(--text-sm)/1.65 var(--font-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.structure-section {
+  min-width: 0;
+  max-width: 100%;
+  padding-block: var(--space-xl) var(--space-3xl);
+  border-top: 0;
+  scroll-margin-top: var(--space-2xl);
+  overflow: hidden;
+}
+.structure-details {
+  min-width: 0;
+  max-width: 100%;
+}
+.structure-details > summary {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  min-height: 4rem;
+  cursor: pointer;
+  list-style: none;
+}
+.structure-details > summary::-webkit-details-marker {
+  display: none;
+}
+.structure-details > summary strong {
+  display: block;
+  font: 650 var(--text-base)/1.45 var(--font-body);
+  letter-spacing: 0;
+}
+.summary-hint {
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+.structure-details:not([open]) .summary-hint::before {
+  content: "展开 · ";
+}
+.structure-copy {
+  max-width: var(--measure);
+  color: var(--color-muted);
+}
+.detail-tree-scroll {
+  width: 100%;
+  max-width: 100%;
+  max-height: 72dvh;
+  overflow: auto;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  overscroll-behavior: contain;
+}
+.detail-tree {
+  position: relative;
+  width: var(--tree-width);
+  height: var(--tree-height);
+  min-width: 100%;
+}
+.detail-tree svg {
+  position: absolute;
+  inset: 0;
+  width: var(--tree-width);
+  height: var(--tree-height);
+  overflow: visible;
+}
+.detail-tree path {
+  fill: none;
+  stroke: var(--color-faint);
+  stroke-width: 1.25;
+  stroke-dasharray: 4 6;
+  vector-effect: non-scaling-stroke;
+}
+.detail-node {
+  position: absolute;
+  inset-inline-start: var(--tree-x);
+  top: var(--tree-y);
+  display: grid;
+  gap: var(--space-2xs);
+  width: 13rem;
+  min-height: 3.25rem;
+  padding: var(--space-xs) var(--space-sm);
+  transform: translate(-12%, -50%);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  background: var(--color-paper-lift);
+  text-align: start;
+  cursor: pointer;
+}
+.detail-node:hover {
+  border-color: var(--color-accent);
+}
+.detail-node span,
+.detail-node strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-node span {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  font-weight: 400;
+}
+.detail-node strong {
+  font-size: var(--text-sm);
+}
+
+.method {
+  margin-top: 0;
+  border-color: var(--color-rule);
+}
+.method summary {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 40rem) {
+  .route-heading {
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+  }
+  .summary-ledger {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .summary-outcomes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .summary-ledger > div {
+    padding: var(--space-md);
+    border-top: 0;
+    border-inline-start: 0;
+  }
+  .thought-field {
+    grid-template-columns: minmax(9rem, 0.28fr) minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 60rem) {
+  .masthead {
+    grid-template-columns: minmax(0, 1.25fr) minmax(20rem, 0.75fr);
+    align-items: end;
+  }
+  .masthead .wordmark {
+    grid-column: 1 / -1;
+  }
+  .masthead h1 {
+    grid-column: 1;
+  }
+  .masthead .lede,
+  .masthead .masthead-trust,
+  .masthead .masthead-duration {
+    grid-column: 2;
+  }
+  .masthead .masthead-trust {
+    align-self: start;
+  }
+  .review-layout {
+    display: grid;
+    grid-template-columns: var(--rail-width) minmax(0, 1fr);
+  }
+  .path-panel {
+    top: var(--space-md);
+    max-height: calc(100dvh - 2 * var(--space-md));
+    margin-inline: 0;
+    padding: var(--space-lg);
+    border-block: 0;
+    border-inline-end: 0;
+    overflow-y: auto;
+  }
+  .path-panel-head {
+    display: flex;
+    gap: var(--space-sm);
+    align-items: center;
+  }
+  .path-panel-head .section-kicker {
+    margin-bottom: var(--space-xs);
+  }
+  .path-intro {
+    display: block;
+  }
+  .route-minimap,
+  .path-panel .reading-index {
+    display: grid;
+  }
+  .route-minimap {
+    display: block;
+  }
+  .review-summary {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .review-body {
+    margin-top: 0;
+  }
+}
+
+@media (pointer: coarse) {
+  .route-source,
+  .resume-copy,
+  .mini-node,
+  .detail-node {
+    min-height: 3rem;
+  }
+}
+
+/* 打印 / 存 PDF。目标用户（研究者、编辑）大概率要把复盘稿存下来或转发，
+   而屏幕版的两张图都靠横向滚动，直接印会被裁成半张。
+   处理办法不是缩放，而是换一张：侧栏那份竖版小地图本来就是页面比例，
+   打印时把它扶正顶替全宽来路图，路径信息一条不丢。 */
+@media print {
+  :root {
+    --color-paper: #fff;
+    --color-paper-deep: #fff;
+    --color-paper-lift: #fff;
+    --color-ink: #000;
+    --color-muted: #444;
+    --color-faint: #777;
+    --color-rule: #bbb;
+    --color-table-rule: #bbb;
+    --color-accent: #000;
+    --color-accent-strong: #000;
+    --color-structure: #000;
+    --color-shadow: transparent;
+  }
+  @page {
+    margin: 16mm 14mm;
+  }
+  body {
+    background: #fff;
+  }
+  /* 交互件在纸上没有意义, 只会留下看不懂的按钮外框。 */
+  .route-source,
+  .route-return,
+  .resume-copy,
+  .map-instructions,
+  .summary-hint,
+  .reading-position,
+  .detail-tree-scroll,
+  .route-overview .route-scroll {
+    display: none !important;
+  }
+  /* 折叠层全部摊开: 纸上没有「点开」这回事。 */
+  details {
+    display: block;
+  }
+  details > summary {
+    display: none;
+  }
+  /* 侧栏顶替全宽来路图。 */
+  .path-panel {
+    position: static !important;
+    max-height: none;
+    break-inside: avoid;
+  }
+  .route-minimap {
+    display: block !important;
+  }
+  .page-shell,
+  .review-summary,
+  .session {
+    display: block !important;
+  }
+  .review-section,
+  .thought,
+  .summary-outcome,
+  .origin-quote,
+  .method-notes > div {
+    break-inside: avoid;
+  }
+  h2, h3, h4 {
+    break-after: avoid;
+  }
+  a {
+    text-decoration: none;
+  }
+}
+</style>
+</head><body>
+<main class="page-shell">
+<header class="masthead">
+<p class="wordmark">Breadcrumbs · 思路</p>
+<h1>社区花园如何形成持续协作</h1>
+<p class="lede">虚构演示：讨论从追求到场人数，转向验证住户是否愿意接住一个具体的小任务</p>
+<p class="masthead-duration"><span>历时</span>2.2 天</p>
+<div class="trust-note masthead-trust confirmed"><span class="trust-mark" aria-hidden="true"></span><p>语义名称与结论已由 Agent 回读核实；路径连接仍是算法推断，每个判断都能打开当时原话。</p></div>
+</header>
+<section class="session" data-session="0">
+<header class="session-heading session-heading-meta">
+</header>
+<div class="orientation">
+<section class="route-overview" id="route-04f51b1a03" data-session-key="04f51b1a03"><header class="route-heading"><div><h2>一、来路图</h2><p class="orientation-subtitle">你是怎么走到终点的</p></div><p class="map-instructions" aria-label="来路图使用方法">共 4 站，可横向滚动<br>点名称定位 · 点「原话」核对 · 点「返回」继续</p></header><div class="route-scroll" tabindex="0" aria-label="可横向滚动的来路图"><div class="route-map" style="--map-width:596px;--map-height:382px"><svg class="route-lines" viewBox="0 0 596 382" aria-hidden="true" preserveAspectRatio="none"><path class="route-edge" d="M 96 174 C 189.6 174, 197.4 58, 291 58" data-route-edge data-session-key="04f51b1a03" data-from-thread="0" data-to-thread="1"></path><path class="route-edge" d="M 96 174 C 189.6 174, 197.4 290, 291 290" data-route-edge data-session-key="04f51b1a03" data-from-thread="0" data-to-thread="2"></path><path class="route-edge returning" d="M 96 174 C 283.2 146, 298.8 146, 486 174" data-route-edge data-session-key="04f51b1a03" data-from-thread="0" data-to-thread="0"></path><path class="route-edge returning" d="M 291 58 C 384.6 58, 392.4 174, 486 174" data-route-edge data-session-key="04f51b1a03" data-from-thread="1" data-to-thread="0"></path><path class="route-edge returning" d="M 291 290 C 384.6 290, 392.4 174, 486 174" data-route-edge data-session-key="04f51b1a03" data-from-thread="2" data-to-thread="0"></path></svg><div class="route-stop confirmed" style="--route-x:96px;--route-y:174px" data-thread="0"><a class="route-node" href="#thought-04f51b1a03-0" data-route-node data-session-key="04f51b1a03" data-thread="0" title="设计共享花园的持续参与机制"><span class="route-verb">从这里开始</span><strong>设计共享花园的持续参与机制</strong></a><div class="route-node-actions"><button class="route-source" type="button" data-source="prompt-4fd2a6e1b0883b4e">原话</button><button class="route-return" type="button" data-copy-prompt="map-resume-04f51b1a03-0">返回</button></div></div><div class="route-stop confirmed branch" style="--route-x:291px;--route-y:58px" data-thread="1"><a class="route-node" href="#thought-04f51b1a03-1" data-route-node data-session-key="04f51b1a03" data-thread="1" title="选择黑板粉笔的海报语言"><span class="route-verb">转去</span><strong>选择黑板粉笔的海报语言</strong></a><div class="route-node-actions"><button class="route-source" type="button" data-source="prompt-ac5d37aa21026d4f">原话</button></div></div><div class="route-stop confirmed branch" style="--route-x:291px;--route-y:290px" data-thread="2"><a class="route-node" href="#thought-04f51b1a03-2" data-route-node data-session-key="04f51b1a03" data-thread="2" title="重新写现场成功信号"><span class="route-verb">转去</span><strong>重新写现场成功信号</strong></a><div class="route-node-actions"><button class="route-source" type="button" data-source="prompt-6fcba8a2404853f0">原话</button></div></div><div class="route-stop confirmed repeat" style="--route-x:486px;--route-y:174px" data-thread="0"><a class="route-node" href="#thought-04f51b1a03-0" data-route-node data-session-key="04f51b1a03" data-thread="0" title="设计共享花园的持续参与机制"><span class="route-verb">最后停在</span><strong>设计共享花园的持续参与机制</strong></a><div class="route-node-actions"><button class="route-source" type="button" data-source="prompt-2ceb6c9b40dba43e">原话</button><button class="route-return" type="button" data-copy-prompt="map-resume-04f51b1a03-0">返回</button></div></div><template id="map-resume-04f51b1a03-0">我想回到这段对话里「设计共享花园的持续参与机制」这条思路。
+
+当时我的原话是：我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？
+它与原问题的关系：这是本次讨论的主问题。
+目前留下：形成了包含十五分钟任务、现场信号和雨天替代的最小方案；七天后的任务发起人仍待决定。
+
+请基于当前对话上下文，从这个未完成点继续。先用 2—3 句确认已经确定的内容和仍缺的内容，再提出一个可验证的下一步；如果上下文不足，请明确指出缺什么，不要自行扩展到其他支线。</template></div></div></section>
+<section class="review-summary" id="summary-04f51b1a03"><header><h2>二、复盘总览</h2><p class="orientation-subtitle summary-step-title">1. 先认出来路，再决定从哪里继续</p></header><dl class="summary-ledger"><div><dt>最初在问</dt><dd>我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？</dd><button class="source-link" type="button" data-source="prompt-4fd2a6e1b0883b4e">查看起点原话 →</button></div><div><dt>最后停在</dt><dd>最后，回到社区共享花园首月活动的主问题，给出最小可执行版本：目标、现场流程、三条信号、雨天替代，以及仍未收束的负责人问题。</dd></div><div><dt>未尽事宜</dt><dd>当前停留的问题尚未收束</dd></div></dl><div class="summary-outcomes"><section class="summary-outcome" id="changes-04f51b1a03"><h3>2. 这次改变了什么</h3><div class="summary-change-list"><article><h4>「选择黑板粉笔的海报语言」为主问题补进了材料</h4><p>为主问题补进了更低压力的参与入口，但没有改变持续协作的验证目标</p><button class="source-link" type="button" data-source="prompt-ac5d37aa21026d4f">查看当时原话 →</button></article><article><h4>「重新写现场成功信号」改变了主问题的走向</h4><p>改变了主问题的判断标准：不再把加群当作持续参与，而是观察任务是否被接住</p><button class="source-link" type="button" data-source="prompt-6fcba8a2404853f0">查看当时原话 →</button></article></div></section><section class="summary-outcome" id="continue-04f51b1a03"><h3>3. 建议优先继续</h3><h4>设计共享花园的持续参与机制</h4><p>当前主问题仍在推进；它已有可继续使用的中间产出。</p><p>已经留下：形成了包含十五分钟任务、现场信号和雨天替代的最小方案；七天后的任务发起人仍待决定</p><div class="recommendation-actions"><button class="source-link" type="button" data-source="prompt-4fd2a6e1b0883b4e">查看当时原话 →</button><template id="resume-04f51b1a03-0">我想回到这段对话里「设计共享花园的持续参与机制」这条思路。
+
+当时我的原话是：我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？
+它与原问题的关系：这是本次讨论的主问题。
+目前留下：形成了包含十五分钟任务、现场信号和雨天替代的最小方案；七天后的任务发起人仍待决定。
+
+请基于当前对话上下文，从这个未完成点继续。先用 2—3 句确认已经确定的内容和仍缺的内容，再提出一个可验证的下一步；如果上下文不足，请明确指出缺什么，不要自行扩展到其他支线。</template><button class="resume-copy" type="button" data-copy-prompt="resume-04f51b1a03-0">复制返回提示词</button></div></section></div></section>
+</div>
+<div class="review-layout">
+<aside class="path-panel" aria-label="思路的面包屑"><div class="path-panel-head"><span class="crumb-mark" aria-hidden="true"><svg viewBox="0 0 32 24" focusable="false"><path d="M3.5 9.2C3.5 5.8 6.1 3.5 9.5 3.5h4.2c3.4 0 6 2.3 6 5.7v8.3c0 1.7-1.3 3-3 3H6.5c-1.7 0-3-1.3-3-3Z"></path><path d="M8 8.2c1 .6 1.5 1.5 1.6 2.7M13.2 7.2c1 .7 1.5 1.6 1.5 2.8"></path><circle cx="23.5" cy="10" r="1"></circle><circle cx="27.5" cy="14" r="1.25"></circle><circle cx="30.5" cy="19" r="1.5"></circle></svg></span><h2>思路的面包屑</h2></div><p class="path-intro">进入具体思路时，对应节点会点亮。</p><div class="route-minimap" style="--mini-height:264px" aria-label="来路图缩略导航"><svg viewBox="0 0 260 264" aria-hidden="true"><path class="mini-edge" d="M 18 24 C 62 24, 2 82, 46 82" data-route-edge data-session-key="04f51b1a03" data-from-thread="0" data-to-thread="1"></path><path class="mini-edge" d="M 46 82 C 90 82, 30 140, 74 140" data-route-edge data-session-key="04f51b1a03" data-from-thread="1" data-to-thread="2"></path><path class="mini-edge" d="M 74 140 C 118 140, -26 198, 18 198" data-route-edge data-session-key="04f51b1a03" data-from-thread="2" data-to-thread="0"></path></svg><a class="mini-node confirmed" href="#thought-04f51b1a03-0" style="--mini-x:18px;--mini-y:24px" data-route-node data-session-key="04f51b1a03" data-thread="0" title="设计共享花园的持续参与机制"><span class="mini-dot" aria-hidden="true"></span><span class="mini-node-copy"><strong>设计共享花园的持续参与机制</strong></span></a><a class="mini-node confirmed" href="#thought-04f51b1a03-1" style="--mini-x:46px;--mini-y:82px" data-route-node data-session-key="04f51b1a03" data-thread="1" title="选择黑板粉笔的海报语言"><span class="mini-dot" aria-hidden="true"></span><span class="mini-node-copy"><strong>选择黑板粉笔的海报语言</strong></span></a><a class="mini-node confirmed" href="#thought-04f51b1a03-2" style="--mini-x:74px;--mini-y:140px" data-route-node data-session-key="04f51b1a03" data-thread="2" title="重新写现场成功信号"><span class="mini-dot" aria-hidden="true"></span><span class="mini-node-copy"><strong>重新写现场成功信号</strong></span></a><a class="mini-node confirmed" href="#thought-04f51b1a03-0" style="--mini-x:18px;--mini-y:198px" data-route-node data-session-key="04f51b1a03" data-thread="0" title="设计共享花园的持续参与机制"><span class="mini-dot" aria-hidden="true"></span><span class="mini-node-copy"><strong>设计共享花园的持续参与机制</strong></span></a></div></aside>
+<article class="review-body">
+<section class="review-section thoughts-section" id="thoughts-04f51b1a03" data-review-section><header class="section-head"><h2>三、思路复盘</h2></header><div class="thought-list"><article class="thought" id="thought-04f51b1a03-0" data-thought data-session-key="04f51b1a03" data-thread="0"><span class="source-anchor" id="prompt-4fd2a6e1b0883b4e" aria-hidden="true"></span><span class="source-anchor" id="prompt-387f4ba1fed4443f" aria-hidden="true"></span><span class="source-anchor" id="prompt-4cd1bab0bff92f9a" aria-hidden="true"></span><span class="source-anchor" id="prompt-918152e76287a94f" aria-hidden="true"></span><span class="source-anchor" id="prompt-9ac7e4bc81f23fe4" aria-hidden="true"></span><span class="source-anchor" id="prompt-1516f87b35fc7e57" aria-hidden="true"></span><span class="source-anchor" id="prompt-a437e4c829a38750" aria-hidden="true"></span><span class="source-anchor" id="prompt-41d229a52e05c9e7" aria-hidden="true"></span><span class="source-anchor" id="prompt-f9dede10dfe0c0ea" aria-hidden="true"></span><span class="source-anchor" id="prompt-8c5bc7f14cb05a15" aria-hidden="true"></span><span class="source-anchor" id="prompt-8bd51e1844cf5bc5" aria-hidden="true"></span><span class="source-anchor" id="prompt-2f82a2c1ce8902be" aria-hidden="true"></span><span class="source-anchor" id="prompt-fbbb4a931a6c0c8f" aria-hidden="true"></span><span class="source-anchor" id="prompt-1687aabf803e09e9" aria-hidden="true"></span><span class="source-anchor" id="prompt-f846325ed1b70335" aria-hidden="true"></span><span class="source-anchor" id="prompt-4ae36d0717eac4cc" aria-hidden="true"></span><span class="source-anchor" id="prompt-051474ad73387d87" aria-hidden="true"></span><span class="source-anchor" id="prompt-2ceb6c9b40dba43e" aria-hidden="true"></span><header class="thought-head"><div class="thought-title-row"><div class="thought-title-main"><h3>设计共享花园的持续参与机制</h3></div><span class="state open">未收束</span></div><p class="confidence confirmed">Agent 已回读并核实</p></header><dl class="thought-grid"><div class="thought-field"><dt>从哪里来</dt><dd>由你的追问提出</dd></div><div class="thought-field"><dt>留下了什么</dt><dd>形成了包含十五分钟任务、现场信号和雨天替代的最小方案；七天后的任务发起人仍待决定</dd></div><div class="thought-field"><dt>对原问题的作用</dt><dd>它是本次讨论的主问题。</dd></div><div class="thought-field"><dt>收束依据</dt><dd>已读末次提问后的虚构 AI 回复：方案骨架已经形成，但负责人问题按用户要求保留为未尽事宜</dd></div></dl><blockquote class="origin-quote">“我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？”</blockquote><div class="thought-actions"><button class="source-link" type="button" data-source="prompt-4fd2a6e1b0883b4e">查看当时原话 →</button></div><details class="return-kit"><summary>带着上下文回到这里</summary><div class="return-kit-body"><p>这段提示词复用已有名称、原话和产出，不重新总结整场对话。</p><pre>我想回到这段对话里「设计共享花园的持续参与机制」这条思路。
+
+当时我的原话是：我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？
+它与原问题的关系：这是本次讨论的主问题。
+目前留下：形成了包含十五分钟任务、现场信号和雨天替代的最小方案；七天后的任务发起人仍待决定。
+
+请基于当前对话上下文，从这个未完成点继续。先用 2—3 句确认已经确定的内容和仍缺的内容，再提出一个可验证的下一步；如果上下文不足，请明确指出缺什么，不要自行扩展到其他支线。</pre><template id="resume-04f51b1a03-0">我想回到这段对话里「设计共享花园的持续参与机制」这条思路。
+
+当时我的原话是：我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？
+它与原问题的关系：这是本次讨论的主问题。
+目前留下：形成了包含十五分钟任务、现场信号和雨天替代的最小方案；七天后的任务发起人仍待决定。
+
+请基于当前对话上下文，从这个未完成点继续。先用 2—3 句确认已经确定的内容和仍缺的内容，再提出一个可验证的下一步；如果上下文不足，请明确指出缺什么，不要自行扩展到其他支线。</template><button class="resume-copy" type="button" data-copy-prompt="resume-04f51b1a03-0">复制返回提示词</button></div></details></article><article class="thought" id="thought-04f51b1a03-1" data-thought data-session-key="04f51b1a03" data-thread="1"><span class="source-anchor" id="prompt-ac5d37aa21026d4f" aria-hidden="true"></span><span class="source-anchor" id="prompt-e52930c8697bd707" aria-hidden="true"></span><span class="source-anchor" id="prompt-cc0576c2ce807c50" aria-hidden="true"></span><header class="thought-head"><div class="thought-title-row"><div class="thought-title-main"><h3>选择黑板粉笔的海报语言</h3><em class="drift-badge drift-高" title="表示与分叉前问题的语义距离，不评价这次漂移好坏">注意力漂移 高</em></div><span class="state">已收束</span></div><p class="confidence confirmed">Agent 已回读并核实</p></header><dl class="thought-grid"><div class="thought-field"><dt>从哪里来</dt><dd>由你的追问提出</dd></div><div class="thought-field"><dt>留下了什么</dt><dd>确定了黑板粉笔方向及三组候选名称，让活动入口更像邻里邀请</dd></div><div class="thought-field"><dt>对原问题的作用</dt><dd>为主问题补进了更低压力的参与入口，但没有改变持续协作的验证目标</dd></div><div class="thought-field"><dt>收束依据</dt><dd>已读该思路末次提问后的虚构 AI 回复：视觉方向与候选名称均已给出</dd></div></dl><blockquote class="origin-quote">“换个话题：先讨论海报。我在比较旧杂志拼贴、儿童蜡笔和黑板粉笔三种视觉语言。”</blockquote><div class="thought-actions"><button class="source-link" type="button" data-source="prompt-ac5d37aa21026d4f">查看当时原话 →</button></div></article><article class="thought" id="thought-04f51b1a03-2" data-thought data-session-key="04f51b1a03" data-thread="2"><span class="source-anchor" id="prompt-6fcba8a2404853f0" aria-hidden="true"></span><header class="thought-head"><div class="thought-title-row"><div class="thought-title-main"><h3>重新写现场成功信号</h3><em class="drift-badge drift-低" title="表示与分叉前问题的语义距离，不评价这次漂移好坏">注意力漂移 低</em></div><span class="state">已收束</span></div><p class="confidence confirmed">Agent 已回读并核实</p></header><dl class="thought-grid"><div class="thought-field"><dt>从哪里来</dt><dd>由你的追问提出</dd></div><div class="thought-field"><dt>留下了什么</dt><dd>将成功信号改为认领、完成和交接三个可现场观察的行为</dd></div><div class="thought-field"><dt>对原问题的作用</dt><dd>改变了主问题的判断标准：不再把加群当作持续参与，而是观察任务是否被接住</dd></div><div class="thought-field"><dt>收束依据</dt><dd>已读该提问后的虚构 AI 回复：三条信号已按新的判断标准重写</dd></div></dl><blockquote class="origin-quote">“按照这个修正，重新写三条成功信号，并说明每条信号如何被现场观察。”</blockquote><div class="thought-actions"><button class="source-link" type="button" data-source="prompt-6fcba8a2404853f0">查看当时原话 →</button></div></article></div></section>
+<section class="review-section structure-section" id="structure-04f51b1a03" data-review-section><header class="section-head"><h2>完整讨论结构</h2></header><p class="section-intro">来路图负责认方向；这里按原话逐条核对分叉。每一次提问都在，点任一节点可打开全文。</p><details class="structure-details" open><summary><span><strong>逐条原话</strong></span><span class="summary-hint">折叠</span></summary><div class="detail-tree-scroll" tabindex="0" aria-label="可横向和纵向滚动的完整讨论结构"><div class="detail-tree" style="--tree-width:740px;--tree-height:1522px"><svg viewBox="0 0 740 1522" aria-hidden="true"><path d="M 300 42 C 344 42, 256 108, 300 108"></path><path d="M 300 108 C 344 108, 256 174, 300 174"></path><path d="M 300 174 C 344 174, 256 240, 300 240"></path><path d="M 300 42 C 344 42, 256 306, 300 306"></path><path d="M 300 306 C 344 306, 256 372, 300 372"></path><path d="M 300 372 C 344 372, 26 438, 70 438"></path><path d="M 70 438 C 114 438, 26 504, 70 504"></path><path d="M 70 504 C 114 504, 26 570, 70 570"></path><path d="M 300 372 C 344 372, 256 636, 300 636"></path><path d="M 300 636 C 344 636, 256 702, 300 702"></path><path d="M 300 702 C 344 702, 256 768, 300 768"></path><path d="M 300 702 C 344 702, 256 834, 300 834"></path><path d="M 300 834 C 344 834, 256 900, 300 900"></path><path d="M 300 174 C 344 174, 256 966, 300 966"></path><path d="M 300 42 C 344 42, 256 1032, 300 1032"></path><path d="M 300 1032 C 410.4 1032, 419.6 1098, 530 1098"></path><path d="M 300 108 C 344 108, 256 1164, 300 1164"></path><path d="M 300 1164 C 344 1164, 256 1230, 300 1230"></path><path d="M 300 42 C 344 42, 256 1296, 300 1296"></path><path d="M 300 240 C 344 240, 256 1362, 300 1362"></path><path d="M 300 42 C 344 42, 256 1428, 300 1428"></path></svg><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:42px" data-source="prompt-4fd2a6e1b0883b4e" data-thread="0" title="我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？"><span>设计共享花园的持续参与机制</span><strong>我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:108px" data-source="prompt-387f4ba1fed4443f" data-thread="0" title="先不要列完整方案。请帮我明确：首月活动真正要验证的是到场人数，还是住户会不会形成持续协作？"><strong>先不要列完整方案。请帮我明确：首月活动真正要验证的是到场人数，还是住…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:174px" data-source="prompt-4cd1bab0bff92f9a" data-thread="0" title="如果目标是持续协作，我们需要观察哪些具体行为，才能避免只看报名人数这种虚荣指标？"><strong>如果目标是持续协作，我们需要观察哪些具体行为，才能避免只看报名人数这…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:240px" data-source="prompt-918152e76287a94f" data-thread="0" title="继续细化，把这些行为整理成活动当天就能记录的三个信号。"><strong>继续细化，把这些行为整理成活动当天就能记录的三个信号。</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:306px" data-source="prompt-9ac7e4bc81f23fe4" data-thread="0" title="我担心要求大家持续维护会造成负担。能否先设计一个只承诺十五分钟的小任务？"><strong>我担心要求大家持续维护会造成负担。能否先设计一个只承诺十五分钟的小任…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:372px" data-source="prompt-1516f87b35fc7e57" data-thread="0" title="请给这个十五分钟任务一个最小流程：如何认领、如何完成、如何让下一个人接手。"><strong>请给这个十五分钟任务一个最小流程：如何认领、如何完成、如何让下一个人…</strong></button><button class="detail-node" type="button" style="--tree-x:70px;--tree-y:438px" data-source="prompt-ac5d37aa21026d4f" data-thread="1" title="换个话题：先讨论海报。我在比较旧杂志拼贴、儿童蜡笔和黑板粉笔三种视觉语言。"><span>选择黑板粉笔的海报语言</span><strong>换个话题：先讨论海报。我在比较旧杂志拼贴、儿童蜡笔和黑板粉笔三种视觉…</strong></button><button class="detail-node" type="button" style="--tree-x:70px;--tree-y:504px" data-source="prompt-e52930c8697bd707" data-thread="1" title="海报继续用黑板粉笔的方向。标题、颜色和插画分别应该传达什么感觉？"><strong>海报继续用黑板粉笔的方向。标题、颜色和插画分别应该传达什么感觉？</strong></button><button class="detail-node" type="button" style="--tree-x:70px;--tree-y:570px" data-source="prompt-cc0576c2ce807c50" data-thread="1" title="沿着黑板粉笔海报再想三个名字：不要太公益宣传，也不要像商业活动。"><strong>沿着黑板粉笔海报再想三个名字：不要太公益宣传，也不要像商业活动。</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:636px" data-source="prompt-a437e4c829a38750" data-thread="0" title="先放下海报。回到持续协作：十五分钟任务完成后，怎样让住户自然看到别人的贡献？"><span>设计共享花园的持续参与机制</span><strong>先放下海报。回到持续协作：十五分钟任务完成后，怎样让住户自然看到别人…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:702px" data-source="prompt-41d229a52e05c9e7" data-thread="0" title="我们之前说要记录三个信号。把“看到别人的贡献”补进指标里，但不要变成复杂的数据表。"><strong>我们之前说要记录三个信号。把“看到别人的贡献”补进指标里，但不要变成…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:768px" data-source="prompt-f9dede10dfe0c0ea" data-thread="0" title="另一个问题：天气预报显示雷阵雨，花圃无法进入，我们可能要把活动搬到架空层。"><strong>另一个问题：天气预报显示雷阵雨，花圃无法进入，我们可能要把活动搬到架…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:834px" data-source="prompt-8c5bc7f14cb05a15" data-thread="0" title="继续处理雷阵雨预案：请设计一个架空层替代方案，但不要变成普通茶话会。"><strong>继续处理雷阵雨预案：请设计一个架空层替代方案，但不要变成普通茶话会。</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:900px" data-source="prompt-8bd51e1844cf5bc5" data-thread="0" title="架空层方案里怎样保留“认领—完成—交给下一位”的接力结构？"><strong>架空层方案里怎样保留“认领—完成—交给下一位”的接力结构？</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:966px" data-source="prompt-2f82a2c1ce8902be" data-thread="0" title="回到主问题。现在请比较户外与室内方案，哪些环节必须保持一致，才能比较结果？"><strong>回到主问题。现在请比较户外与室内方案，哪些环节必须保持一致，才能比较…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:1032px" data-source="prompt-fbbb4a931a6c0c8f" data-thread="0" title="我不同意把是否加群当成持续参与。更准确地说，我们要看住户是否愿意接住一个具体的小任务。"><strong>我不同意把是否加群当成持续参与。更准确地说，我们要看住户是否愿意接住…</strong></button><button class="detail-node" type="button" style="--tree-x:530px;--tree-y:1098px" data-source="prompt-6fcba8a2404853f0" data-thread="2" title="按照这个修正，重新写三条成功信号，并说明每条信号如何被现场观察。"><span>重新写现场成功信号</span><strong>按照这个修正，重新写三条成功信号，并说明每条信号如何被现场观察。</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:1164px" data-source="prompt-1687aabf803e09e9" data-thread="0" title="那海报支线留下了什么？它有没有改变主方案，还是只是美术讨论？"><span>设计共享花园的持续参与机制</span><strong>那海报支线留下了什么？它有没有改变主方案，还是只是美术讨论？</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:1230px" data-source="prompt-f846325ed1b70335" data-thread="0" title="雨天支线呢？请说明它如何帮助我们核查活动机制，而不只是做应急预案。"><strong>雨天支线呢？请说明它如何帮助我们核查活动机制，而不只是做应急预案。</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:1296px" data-source="prompt-4ae36d0717eac4cc" data-thread="0" title="还有一个未解决的问题：活动结束后的七天里，谁负责发出第二个任务，目前还没有确定。"><strong>还有一个未解决的问题：活动结束后的七天里，谁负责发出第二个任务，目前…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:1362px" data-source="prompt-051474ad73387d87" data-thread="0" title="请先不要替我决定负责人。把这个未完成点整理成下次可以直接继续讨论的提问。"><strong>请先不要替我决定负责人。把这个未完成点整理成下次可以直接继续讨论的提…</strong></button><button class="detail-node" type="button" style="--tree-x:300px;--tree-y:1428px" data-source="prompt-2ceb6c9b40dba43e" data-thread="0" title="最后，回到社区共享花园首月活动的主问题，给出最小可执行版本：目标、现场流程、三条信号、雨天替代，以及仍未收束的负责人问题。"><strong>最后，回到社区共享花园首月活动的主问题，给出最小可执行版本：目标、现…</strong></button></div></div></details></section>
+<details class="method"><summary>方法与诊断</summary><div class="method-body"><p class="method-copy">这一层保留工程定位，用于核对算法和标注。它不承担用户的第一层理解，所以这里才出现记录号、结构主题 id 和阈值。</p><table class="diagnostic"><thead><tr><th>结构主题 id</th><th>用户可见名称</th><th>记录数</th><th>起点</th><th>末次出现</th></tr></thead><tbody><tr><td>0</td><td>设计共享花园的持续参与机制</td><td>18</td><td>1</td><td>22</td></tr><tr><td>1</td><td>选择黑板粉笔的海报语言</td><td>3</td><td>7</td><td>9</td></tr><tr><td>2</td><td>重新写现场成功信号</td><td>1</td><td>17</td><td>17</td></tr></tbody></table><pre class="code-facts">{
+  &quot;analysis_id&quot;: &quot;sha256:a7a73d3ae7a0799a91fe6d4f931483da&quot;,
+  &quot;algorithm_version&quot;: &quot;0.5.0&quot;,
+  &quot;theta&quot;: 0.015,
+  &quot;history_corpus_size&quot;: 66,
+  &quot;fit_corpus_size&quot;: 66,
+  &quot;corpus_degraded&quot;: false,
+  &quot;filtered_auto_entries&quot;: 0,
+  &quot;retries_collapsed&quot;: 0,
+  &quot;annotation_trust&quot;: &quot;confirmed&quot;
+}</pre></div></details>
+</article></div></section>
+<footer class="foot-line"><p>Breadcrumbs · 思路 · 本地生成 · 原话不离开设备</p></footer>
+</main>
+<dialog class="source-dialog" id="source-dialog" aria-labelledby="source-title">
+<div class="source-inner">
+<button class="dialog-close" type="button" aria-label="关闭原话">×</button>
+<p class="dialog-label"></p>
+<h2 class="source-title" id="source-title"></h2>
+<pre class="source-text"></pre>
+<details class="source-tech"><summary>技术定位</summary>
+<pre class="source-tech-body"></pre></details>
+</div></dialog>
+<script>window.__DATA__=[{"name": "为社区共享花园设计可持续参与机制", "sources": [{"anchor": "prompt-4fd2a6e1b0883b4e", "turn": 1, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "我想设计一个社区共享花园的首月活动，让刚搬来的住户愿意认识邻居，并在活动结束后继续参与。应该先解决什么？", "time": "2026-05-01T09:00:00Z"}, {"anchor": "prompt-387f4ba1fed4443f", "turn": 2, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "先不要列完整方案。请帮我明确：首月活动真正要验证的是到场人数，还是住户会不会形成持续协作？", "time": "2026-05-01T10:00:00Z"}, {"anchor": "prompt-4cd1bab0bff92f9a", "turn": 3, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "如果目标是持续协作，我们需要观察哪些具体行为，才能避免只看报名人数这种虚荣指标？", "time": "2026-05-01T11:00:00Z"}, {"anchor": "prompt-918152e76287a94f", "turn": 4, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "继续细化，把这些行为整理成活动当天就能记录的三个信号。", "time": "2026-05-01T12:00:00Z"}, {"anchor": "prompt-9ac7e4bc81f23fe4", "turn": 5, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "我担心要求大家持续维护会造成负担。能否先设计一个只承诺十五分钟的小任务？", "time": "2026-05-01T13:00:00Z"}, {"anchor": "prompt-1516f87b35fc7e57", "turn": 6, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "请给这个十五分钟任务一个最小流程：如何认领、如何完成、如何让下一个人接手。", "time": "2026-05-01T14:00:00Z"}, {"anchor": "prompt-ac5d37aa21026d4f", "turn": 7, "thread": 1, "topic": "选择黑板粉笔的海报语言", "text": "换个话题：先讨论海报。我在比较旧杂志拼贴、儿童蜡笔和黑板粉笔三种视觉语言。", "time": "2026-05-01T15:00:00Z"}, {"anchor": "prompt-e52930c8697bd707", "turn": 8, "thread": 1, "topic": "选择黑板粉笔的海报语言", "text": "海报继续用黑板粉笔的方向。标题、颜色和插画分别应该传达什么感觉？", "time": "2026-05-01T16:00:00Z"}, {"anchor": "prompt-cc0576c2ce807c50", "turn": 9, "thread": 1, "topic": "选择黑板粉笔的海报语言", "text": "沿着黑板粉笔海报再想三个名字：不要太公益宣传，也不要像商业活动。", "time": "2026-05-02T09:00:00Z"}, {"anchor": "prompt-a437e4c829a38750", "turn": 10, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "先放下海报。回到持续协作：十五分钟任务完成后，怎样让住户自然看到别人的贡献？", "time": "2026-05-02T10:00:00Z"}, {"anchor": "prompt-41d229a52e05c9e7", "turn": 11, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "我们之前说要记录三个信号。把“看到别人的贡献”补进指标里，但不要变成复杂的数据表。", "time": "2026-05-02T11:00:00Z"}, {"anchor": "prompt-f9dede10dfe0c0ea", "turn": 12, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "另一个问题：天气预报显示雷阵雨，花圃无法进入，我们可能要把活动搬到架空层。", "time": "2026-05-02T12:00:00Z"}, {"anchor": "prompt-8c5bc7f14cb05a15", "turn": 13, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "继续处理雷阵雨预案：请设计一个架空层替代方案，但不要变成普通茶话会。", "time": "2026-05-02T13:00:00Z"}, {"anchor": "prompt-8bd51e1844cf5bc5", "turn": 14, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "架空层方案里怎样保留“认领—完成—交给下一位”的接力结构？", "time": "2026-05-02T14:00:00Z"}, {"anchor": "prompt-2f82a2c1ce8902be", "turn": 15, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "回到主问题。现在请比较户外与室内方案，哪些环节必须保持一致，才能比较结果？", "time": "2026-05-02T15:00:00Z"}, {"anchor": "prompt-fbbb4a931a6c0c8f", "turn": 16, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "我不同意把是否加群当成持续参与。更准确地说，我们要看住户是否愿意接住一个具体的小任务。", "time": "2026-05-02T16:00:00Z"}, {"anchor": "prompt-6fcba8a2404853f0", "turn": 17, "thread": 2, "topic": "重新写现场成功信号", "text": "按照这个修正，重新写三条成功信号，并说明每条信号如何被现场观察。", "time": "2026-05-03T09:00:00Z"}, {"anchor": "prompt-1687aabf803e09e9", "turn": 18, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "那海报支线留下了什么？它有没有改变主方案，还是只是美术讨论？", "time": "2026-05-03T10:00:00Z"}, {"anchor": "prompt-f846325ed1b70335", "turn": 19, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "雨天支线呢？请说明它如何帮助我们核查活动机制，而不只是做应急预案。", "time": "2026-05-03T11:00:00Z"}, {"anchor": "prompt-4ae36d0717eac4cc", "turn": 20, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "还有一个未解决的问题：活动结束后的七天里，谁负责发出第二个任务，目前还没有确定。", "time": "2026-05-03T12:00:00Z"}, {"anchor": "prompt-051474ad73387d87", "turn": 21, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "请先不要替我决定负责人。把这个未完成点整理成下次可以直接继续讨论的提问。", "time": "2026-05-03T13:00:00Z"}, {"anchor": "prompt-2ceb6c9b40dba43e", "turn": 22, "thread": 0, "topic": "设计共享花园的持续参与机制", "text": "最后，回到社区共享花园首月活动的主问题，给出最小可执行版本：目标、现场流程、三条信号、雨天替代，以及仍未收束的负责人问题。", "time": "2026-05-03T14:00:00Z"}]}];</script>
+<script>const sessions = window.__DATA__ || [];
+const sourceIndex = new Map();
+
+for (const session of sessions) {
+  for (const source of session.sources || []) {
+    sourceIndex.set(source.anchor, { ...source, session: session.name });
+  }
+}
+
+const dialog = document.querySelector("#source-dialog");
+const closeButton = dialog?.querySelector(".dialog-close");
+const label = dialog?.querySelector(".dialog-label");
+const title = dialog?.querySelector(".source-title");
+const text = dialog?.querySelector(".source-text");
+const tech = dialog?.querySelector(".source-tech-body");
+
+function openSource(anchor, updateLocation = true) {
+  const source = sourceIndex.get(anchor);
+  if (!source || !dialog) return;
+  label.textContent = `${source.session} · 当时的用户输入`;
+  title.textContent = source.topic || "回到当时的问题";
+  text.textContent = source.text;
+  tech.textContent = [
+    `时间：${source.time || "未记录"}`,
+    `技术定位：记录 ${source.turn}`,
+    `结构主题：${source.thread}`,
+    `稳定锚点：${source.anchor}`,
+  ].join("\n");
+  if (updateLocation) history.replaceState(null, "", `#${source.anchor}`);
+  if (!dialog.open) dialog.showModal();
+  closeButton?.focus();
+}
+
+document.querySelectorAll("[data-source]").forEach((control) => {
+  control.addEventListener("click", (event) => {
+    event.preventDefault();
+    openSource(control.dataset.source);
+  });
+});
+
+closeButton?.addEventListener("click", () => dialog.close());
+dialog?.addEventListener("click", (event) => {
+  if (event.target === dialog) dialog.close();
+});
+dialog?.addEventListener("close", () => {
+  if (location.hash.startsWith("#prompt-")) {
+    history.replaceState(null, "", `${location.pathname}${location.search}`);
+  }
+});
+
+const initialAnchor = location.hash.slice(1);
+if (initialAnchor.startsWith("prompt-")) openSource(initialAnchor, false);
+
+async function copyText(value) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+  const field = document.createElement("textarea");
+  field.value = value;
+  field.setAttribute("readonly", "");
+  field.style.position = "fixed";
+  field.style.opacity = "0";
+  document.body.append(field);
+  field.select();
+  document.execCommand("copy");
+  field.remove();
+}
+
+document.querySelectorAll("[data-copy-prompt]").forEach((control) => {
+  control.addEventListener("click", async () => {
+    const template = document.getElementById(control.dataset.copyPrompt);
+    if (!template) return;
+    const original = control.textContent;
+    try {
+      await copyText(template.content?.textContent || template.textContent || "");
+      control.dataset.state = "copied";
+      control.textContent = "已复制，可回到对话继续";
+      window.setTimeout(() => {
+        delete control.dataset.state;
+        control.textContent = original;
+      }, 2500);
+    } catch {
+      control.textContent = "复制失败，请展开后手动复制";
+    }
+  });
+});
+
+function prepareRouteMap(overview) {
+  const scroller = overview?.querySelector(".route-scroll");
+  const map = overview?.querySelector(".route-map");
+  if (!scroller || !map) return;
+  map.style.setProperty("--map-pad", "0px");
+}
+
+const lastLocationBySession = new Map();
+
+function setCurrentSection(sessionKey, section) {
+  const locationKey = section ? `section:${section.id}` : "orientation";
+  if (lastLocationBySession.get(sessionKey) === locationKey) return;
+  lastLocationBySession.set(sessionKey, locationKey);
+
+  document.querySelectorAll(
+    `[data-route-node][data-session-key="${sessionKey}"]`
+  ).forEach((node) => {
+    node.classList.remove("is-active");
+    node.removeAttribute("aria-current");
+  });
+  document.querySelectorAll(
+    `[data-route-edge][data-session-key="${sessionKey}"]`
+  ).forEach((edge) => edge.classList.remove("is-active"));
+  document.querySelectorAll(
+    `[data-thought][data-session-key="${sessionKey}"]`
+  ).forEach((thought) => thought.classList.remove("is-active"));
+}
+
+function setActiveThread(sessionKey, thread) {
+  const locationKey = `thought:${thread}`;
+  lastLocationBySession.set(sessionKey, locationKey);
+  document.querySelectorAll(
+    `[data-route-node][data-session-key="${sessionKey}"]`
+  ).forEach((node) => {
+    const isActive = node.dataset.thread === thread;
+    node.classList.toggle("is-active", isActive);
+    if (isActive) {
+      node.setAttribute("aria-current", "location");
+    } else {
+      node.removeAttribute("aria-current");
+    }
+  });
+  document.querySelectorAll(
+    `[data-route-edge][data-session-key="${sessionKey}"]`
+  ).forEach((edge) => {
+    edge.classList.toggle("is-active", edge.dataset.toThread === thread);
+  });
+  document.querySelectorAll(
+    `[data-thought][data-session-key="${sessionKey}"]`
+  ).forEach((thought) => {
+    thought.classList.toggle("is-active", thought.dataset.thread === thread);
+  });
+  // 左侧面包屑负责跟随正文；顶部来路图保持从起点向右展开，不因阅读位置
+  // 自动横移。否则用户一边向下读，页面上方的空间参照会悄悄改变。
+}
+
+function updateReadingPosition() {
+  const probeY = Math.min(window.innerHeight * 0.18, 160);
+
+  document.querySelectorAll(".session").forEach((session) => {
+    const sessionKey = session.querySelector("[data-session-key]")?.dataset.sessionKey;
+    if (!sessionKey) return;
+    const sections = [...session.querySelectorAll("[data-review-section]")];
+    if (!sections.length) return;
+
+    const activeSection = sections.find((section) => {
+      const box = section.getBoundingClientRect();
+      return box.top <= probeY && box.bottom > probeY;
+    }) || sections
+      .filter((section) => section.getBoundingClientRect().top <= probeY)
+      .at(-1);
+
+    if (!activeSection) {
+      session.querySelectorAll("[data-section-link]").forEach((link) => {
+        link.classList.remove("is-active");
+      });
+      setCurrentSection(sessionKey, null);
+      return;
+    }
+
+    session.querySelectorAll("[data-section-link]").forEach((link) => {
+      link.classList.toggle(
+        "is-active",
+        link.getAttribute("href") === `#${activeSection.id}`
+      );
+    });
+
+    if (activeSection.classList.contains("thoughts-section")) {
+      const thoughts = [...activeSection.querySelectorAll("[data-thought]")];
+      const activeThought = thoughts.find((thought) => {
+        const box = thought.getBoundingClientRect();
+        return box.top <= probeY && box.bottom > probeY;
+      });
+      if (activeThought) {
+        setActiveThread(
+          activeThought.dataset.sessionKey,
+          activeThought.dataset.thread
+        );
+        return;
+      }
+    }
+
+    setCurrentSection(sessionKey, activeSection);
+  });
+}
+
+let readingFrame = 0;
+function scheduleReadingPosition() {
+  window.cancelAnimationFrame(readingFrame);
+  readingFrame = window.requestAnimationFrame(updateReadingPosition);
+}
+
+window.addEventListener("scroll", scheduleReadingPosition, { passive: true });
+scheduleReadingPosition();
+
+// 来路图的第一眼必须是起点。停在终点会让首屏出现一个被左边缘切断的节点,
+// 而且拿不到「这条路有多长」——恰恰是这张图存在的理由。
+function updateRouteEdges(overview) {
+  const scroller = overview?.querySelector(".route-scroll");
+  if (!scroller) return;
+  const max = scroller.scrollWidth - scroller.clientWidth;
+  scroller.classList.toggle("can-scroll-left", scroller.scrollLeft > 4);
+  scroller.classList.toggle("can-scroll-right", scroller.scrollLeft < max - 4);
+}
+
+document.querySelectorAll(".route-overview").forEach((overview) => {
+  prepareRouteMap(overview);
+  const scroller = overview.querySelector(".route-scroll");
+  const origin = overview.querySelector("[data-route-node]");
+  if (origin) {
+    window.requestAnimationFrame(() => {
+      scroller.scrollTo({ left: 0, behavior: "auto" });
+      updateRouteEdges(overview);
+    });
+  }
+  scroller?.addEventListener(
+    "scroll", () => updateRouteEdges(overview), { passive: true }
+  );
+});
+
+let routeResizeFrame = 0;
+window.addEventListener("resize", () => {
+  window.cancelAnimationFrame(routeResizeFrame);
+  routeResizeFrame = window.requestAnimationFrame(() => {
+    document.querySelectorAll(".route-overview").forEach((overview) => {
+      prepareRouteMap(overview);
+      overview.querySelector(".route-scroll")?.scrollTo({
+        left: 0,
+        behavior: "auto",
+      });
+      updateRouteEdges(overview);
+    });
+    updateReadingPosition();
+  });
+});
+</script>
+</body></html>

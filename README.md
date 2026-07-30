@@ -7,7 +7,8 @@ Breadcrumbs 用于核对和复盘较长的 Claude Code、Codex 对话。
 1. 这段对话有哪些问题被忽视、悬置、待处理？
 2. 用户的注意力是否发生过漂移，思路链是什么样的？
 
-<img width="1774" height="887" alt="Breadcrumbs：把分叉的思路变成再次出发的起点" src="https://github.com/user-attachments/assets/4e78f9e0-8189-41cc-b177-af680dbb433c" />
+<img width="1774" height="887" alt="image" src="https://github.com/user-attachments/assets/e6ecc175-db4f-45fa-b4ef-55ec9f027114" />
+
 
 ## 两个命令
 

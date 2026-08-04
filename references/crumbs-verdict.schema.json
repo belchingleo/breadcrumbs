@@ -1,0 +1,90 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "session_fingerprint", "items"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "session_fingerprint": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "candidate_id",
+          "status",
+          "confidence",
+          "owner",
+          "fact",
+          "checked_range",
+          "support_turns",
+          "missing",
+          "impact",
+          "impact_reason",
+          "intent",
+          "intent_turn",
+          "intent_question",
+          "reason"
+        ],
+        "properties": {
+          "candidate_id": {"type": "string"},
+          "status": {
+            "type": "string",
+            "enum": ["closed", "open", "uncertain"]
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "owner": {
+            "type": "string",
+            "enum": ["assistant", "user", "shared"]
+          },
+          "fact": {"type": "string"},
+          "checked_range": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from_turn", "through_turn"],
+            "properties": {
+              "from_turn": {"type": "integer"},
+              "through_turn": {"type": "integer"}
+            }
+          },
+          "support_turns": {
+            "type": "array",
+            "items": {"type": "integer"}
+          },
+          "missing": {
+            "type": ["string", "null"]
+          },
+          "impact": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "impact_reason": {
+            "type": ["string", "null"]
+          },
+          "intent": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "explicit_keep",
+              "explicit_drop",
+              "explicit_done"
+            ]
+          },
+          "intent_turn": {
+            "type": ["integer", "null"]
+          },
+          "intent_question": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    }
+  }
+}
